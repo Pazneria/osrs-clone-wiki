@@ -2,12 +2,12 @@ const fs = require("fs");
 const path = require("path");
 
 const {
-  DEFAULT_WIKI_BASE_PATH,
-  buildWikiEntityPath,
-  buildWikiHomePath
-} = require("./lib/wiki-link-contract");
-const { loadWikiBundle, validateWikiBundle } = require("./lib/wiki-data");
-const { syncWikiData } = require("./sync-data");
+  DEFAULT_CODEX_BASE_PATH,
+  buildCodexEntityPath,
+  buildCodexHomePath
+} = require("./lib/codex-link-contract");
+const { loadCodexBundle, validateCodexBundle } = require("./lib/codex-data");
+const { syncCodexData } = require("./sync-data");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -78,12 +78,12 @@ function renderJsonDetails(title, value) {
 }
 
 function buildSectionPath(section) {
-  return `${DEFAULT_WIKI_BASE_PATH}${String(section || "").replace(/^\/+|\/+$/g, "")}/`;
+  return `${DEFAULT_CODEX_BASE_PATH}${String(section || "").replace(/^\/+|\/+$/g, "")}/`;
 }
 
 function routePathToOutputFile(siteRoot, routePath) {
-  assert(routePath.startsWith(DEFAULT_WIKI_BASE_PATH), `Route ${routePath} does not live under ${DEFAULT_WIKI_BASE_PATH}`);
-  const relative = routePath.slice(DEFAULT_WIKI_BASE_PATH.length);
+  assert(routePath.startsWith(DEFAULT_CODEX_BASE_PATH), `Route ${routePath} does not live under ${DEFAULT_CODEX_BASE_PATH}`);
+  const relative = routePath.slice(DEFAULT_CODEX_BASE_PATH.length);
   const segments = relative.split("/").filter(Boolean);
   return segments.length
     ? path.join(siteRoot, ...segments, "index.html")
@@ -103,7 +103,7 @@ function renderLayout(options) {
   } = options;
 
   const navLinks = [
-    { label: "Home", href: buildWikiHomePath(), active: currentPath === buildWikiHomePath() },
+    { label: "Home", href: buildCodexHomePath(), active: currentPath === buildCodexHomePath() },
     { label: "Items", href: buildSectionPath("items"), active: currentPath.startsWith(buildSectionPath("items")) },
     { label: "Skills", href: buildSectionPath("skills"), active: currentPath.startsWith(buildSectionPath("skills")) },
     { label: "World", href: buildSectionPath("world"), active: currentPath.startsWith(buildSectionPath("world")) }
@@ -116,8 +116,8 @@ function renderLayout(options) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(pageTitle)} | ${escapeHtml(editorial.siteTitle)}</title>
     <meta name="description" content="${escapeHtml(editorial.tagline)}" />
-    <link rel="stylesheet" href="${DEFAULT_WIKI_BASE_PATH}styles.css" />
-    <script src="${DEFAULT_WIKI_BASE_PATH}site.js" defer></script>
+    <link rel="stylesheet" href="${DEFAULT_CODEX_BASE_PATH}styles.css" />
+    <script src="${DEFAULT_CODEX_BASE_PATH}site.js" defer></script>
   </head>
   <body>
     <div class="site-shell">
@@ -127,7 +127,7 @@ function renderLayout(options) {
             <h1 class="site-title">${escapeHtml(editorial.siteTitle)}</h1>
             <p class="site-tagline">${escapeHtml(editorial.tagline)}</p>
           </div>
-          <nav class="main-nav" aria-label="Wiki navigation">
+          <nav class="main-nav" aria-label="Codex navigation">
             ${navLinks.map((link) => `<a href="${escapeHtml(link.href)}" data-active="${link.active ? "true" : "false"}">${escapeHtml(link.label)}</a>`).join("")}
           </nav>
         </div>
@@ -187,7 +187,7 @@ function renderHomePage(bundle, editorial) {
       </article>
       <article class="entity-card">
         <h3><a href="${escapeHtml(buildSectionPath("skills"))}">Skills</a></h3>
-        <p>Skill specs, economy tables, recipes, node tables, and wiki cross-links into the worlds that exercise them.</p>
+        <p>Skill specs, economy tables, recipes, node tables, and codex cross-links into the worlds that exercise them.</p>
       </article>
       <article class="entity-card">
         <h3><a href="${escapeHtml(buildSectionPath("world"))}">World</a></h3>
@@ -209,7 +209,7 @@ function renderHomePage(bundle, editorial) {
   return renderLayout({
     editorial,
     manifest: bundle.manifest,
-    currentPath: buildWikiHomePath(),
+    currentPath: buildCodexHomePath(),
     pageTitle: editorial.siteTitle,
     eyebrow: "Reference Hub",
     heroTitle: editorial.siteTitle,
@@ -302,14 +302,14 @@ function renderItemPage(bundle, editorial, item) {
     <section class="section-card">
       <h3>Related Skills</h3>
       ${renderLinkList(item.relatedSkillIds.map((skillId) => ({
-        href: buildWikiEntityPath("skill", skillId),
+        href: buildCodexEntityPath("skill", skillId),
         label: (skillIndex.get(skillId) || {}).title || skillId
       })))}
     </section>
     <section class="section-card">
       <h3>Related Worlds</h3>
       ${renderLinkList(item.relatedWorldIds.map((worldId) => ({
-        href: buildWikiEntityPath("world", worldId),
+        href: buildCodexEntityPath("world", worldId),
         label: (worldIndex.get(worldId) || {}).title || worldId
       })))}
     </section>
@@ -358,14 +358,14 @@ function renderSkillPage(bundle, editorial, skill) {
     <section class="section-card">
       <h3>Related Items</h3>
       ${renderLinkList(skill.relatedItemIds.map((itemId) => ({
-        href: buildWikiEntityPath("item", itemId),
+        href: buildCodexEntityPath("item", itemId),
         label: (itemIndex.get(itemId) || {}).title || itemId
       })))}
     </section>
     <section class="section-card">
       <h3>Related Worlds</h3>
       ${renderLinkList(skill.relatedWorldIds.map((worldId) => ({
-        href: buildWikiEntityPath("world", worldId),
+        href: buildCodexEntityPath("world", worldId),
         label: (worldIndex.get(worldId) || {}).title || worldId
       })))}
     </section>
@@ -407,9 +407,9 @@ function renderWorldRouteSections(world) {
     const routes = Array.isArray(groups[groupId]) ? groups[groupId] : [];
     return `
       <article class="section-card">
-        <h3><a href="${escapeHtml(buildWikiEntityPath("skill", groupId))}">${escapeHtml(groupId)}</a></h3>
+        <h3><a href="${escapeHtml(buildCodexEntityPath("skill", groupId))}">${escapeHtml(groupId)}</a></h3>
         <ul class="link-list">
-          ${routes.map((route) => `<li><a href="${escapeHtml(buildWikiEntityPath("skill", groupId))}">${escapeHtml(route.label || route.routeId)}</a></li>`).join("")}
+          ${routes.map((route) => `<li><a href="${escapeHtml(buildCodexEntityPath("skill", groupId))}">${escapeHtml(route.label || route.routeId)}</a></li>`).join("")}
         </ul>
       </article>
     `;
@@ -447,14 +447,14 @@ function renderWorldPage(bundle, editorial, world) {
     <section class="section-card">
       <h3>Related Skills</h3>
       ${renderLinkList(world.relatedSkillIds.map((skillId) => ({
-        href: buildWikiEntityPath("skill", skillId),
+        href: buildCodexEntityPath("skill", skillId),
         label: (skillIndex.get(skillId) || {}).title || skillId
       })))}
     </section>
     <section class="section-card">
       <h3>Travel Links</h3>
       ${renderLinkList(world.travelLinks.map((link) => ({
-        href: buildWikiEntityPath("world", link.targetWorldId),
+        href: buildCodexEntityPath("world", link.targetWorldId),
         label: `${link.serviceId} -> ${((worldIndex.get(link.targetWorldId) || {}).title || link.targetWorldId)}`
       })))}
     </section>
@@ -515,11 +515,11 @@ function validateGeneratedPages(siteRoot, routePaths) {
 function run() {
   const projectRoot = path.resolve(__dirname, "..");
   const editorial = readJson(path.join(projectRoot, "content", "editorial", "site.json"));
-  const { outDir } = syncWikiData();
-  const bundle = loadWikiBundle(projectRoot, outDir);
-  validateWikiBundle(bundle);
+  const { outDir } = syncCodexData();
+  const bundle = loadCodexBundle(projectRoot, outDir);
+  validateCodexBundle(bundle);
 
-  const siteRoot = path.join(projectRoot, "dist", "osrs-clone-wiki");
+  const siteRoot = path.join(projectRoot, "dist", "osrs-clone-codex");
   removeDir(siteRoot);
   fs.mkdirSync(siteRoot, { recursive: true });
 
@@ -528,7 +528,7 @@ function run() {
   copyBundleFiles(bundle, siteRoot);
 
   const routePaths = [
-    buildWikiHomePath(),
+    buildCodexHomePath(),
     buildSectionPath("items"),
     buildSectionPath("skills"),
     buildSectionPath("world"),
@@ -537,7 +537,7 @@ function run() {
     ...bundle.manifest.indexes.worlds.map((entry) => entry.path)
   ];
 
-  writeRoutePage(siteRoot, { routePath: buildWikiHomePath(), html: renderHomePage(bundle, editorial) });
+  writeRoutePage(siteRoot, { routePath: buildCodexHomePath(), html: renderHomePage(bundle, editorial) });
   writeRoutePage(siteRoot, renderIndexPage(bundle, editorial, {
     title: "Items",
     pathName: "items",
@@ -571,7 +571,7 @@ function run() {
   bundle.worlds.forEach((world) => writeRoutePage(siteRoot, renderWorldPage(bundle, editorial, world)));
 
   validateGeneratedPages(siteRoot, routePaths);
-  console.log(`Built wiki site at ${siteRoot}.`);
+  console.log(`Built codex site at ${siteRoot}.`);
 }
 
 try {

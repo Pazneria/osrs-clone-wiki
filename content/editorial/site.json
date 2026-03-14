@@ -1,18 +1,18 @@
 {
-  "siteTitle": "OSRS Clone Wiki",
+  "siteTitle": "OSRS Clone Codex",
   "tagline": "Reference pages for the Pazneria low-poly MMO sandbox.",
   "intro": [
-    "This wiki is built from the canonical item, skill, and world data exported from the OSRS Clone repository.",
+    "This codex is built from the canonical item, skill, and world data exported from the OSRS Clone repository.",
     "Mechanics and IDs stay grounded in the game repo while layout, navigation, editorial framing, and future lore pages live here."
   ],
   "homeSections": [
     {
       "title": "Website-First",
-      "body": "The arcade, the wiki, and the game can all deep-link to each other through stable site paths without sharing runtime state."
+      "body": "The arcade, the codex, and the game can all deep-link to each other through stable site paths without sharing runtime state."
     },
     {
       "title": "Reference-First",
-      "body": "Versioned exports keep this wiki aligned with authored gameplay content while staying independent to ship on its own cadence."
+      "body": "Versioned exports keep this codex aligned with authored gameplay content while staying independent to ship on its own cadence."
     }
   ]
 }

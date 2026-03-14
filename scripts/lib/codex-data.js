@@ -2,10 +2,10 @@ const fs = require("fs");
 const path = require("path");
 
 const {
-  DEFAULT_WIKI_BASE_PATH,
-  buildWikiEntityPath,
-  getWikiRouteTemplates
-} = require("./wiki-link-contract");
+  DEFAULT_CODEX_BASE_PATH,
+  buildCodexEntityPath,
+  getCodexRouteTemplates
+} = require("./codex-link-contract");
 
 const DEFAULT_FILENAMES = Object.freeze({
   manifest: "manifest.json",
@@ -19,7 +19,7 @@ function assert(condition, message) {
 }
 
 function getDefaultDataDir(projectRoot) {
-  return path.join(projectRoot, "content", "generated", "wiki-export");
+  return path.join(projectRoot, "content", "generated", "codex-export");
 }
 
 function readJson(absPath) {
@@ -35,18 +35,18 @@ function createEntityIndex(rows, keyField) {
   }));
 }
 
-function loadWikiBundle(projectRoot, dataDir = getDefaultDataDir(projectRoot)) {
+function loadCodexBundle(projectRoot, dataDir = getDefaultDataDir(projectRoot)) {
   const manifestPath = path.join(dataDir, DEFAULT_FILENAMES.manifest);
-  assert(fs.existsSync(manifestPath), `Missing wiki bundle manifest at ${manifestPath}`);
+  assert(fs.existsSync(manifestPath), `Missing codex bundle manifest at ${manifestPath}`);
   const manifest = readJson(manifestPath);
   const filenames = Object.assign({}, DEFAULT_FILENAMES, manifest.files || {});
   const itemsPath = path.join(dataDir, filenames.items);
   const skillsPath = path.join(dataDir, filenames.skills);
   const worldsPath = path.join(dataDir, filenames.worlds);
 
-  assert(fs.existsSync(itemsPath), `Missing wiki bundle items at ${itemsPath}`);
-  assert(fs.existsSync(skillsPath), `Missing wiki bundle skills at ${skillsPath}`);
-  assert(fs.existsSync(worldsPath), `Missing wiki bundle worlds at ${worldsPath}`);
+  assert(fs.existsSync(itemsPath), `Missing codex bundle items at ${itemsPath}`);
+  assert(fs.existsSync(skillsPath), `Missing codex bundle skills at ${skillsPath}`);
+  assert(fs.existsSync(worldsPath), `Missing codex bundle worlds at ${worldsPath}`);
 
   return {
     manifest,
@@ -73,24 +73,24 @@ function validateEntityCollection(rows, idField, entityLabel, entityType) {
     assert(!slugs.has(slug), `Duplicate ${entityLabel} slug ${slug}`);
     slugs.add(slug);
 
-    const expectedPath = buildWikiEntityPath(entityType, id, { basePath: DEFAULT_WIKI_BASE_PATH });
+    const expectedPath = buildCodexEntityPath(entityType, id, { basePath: DEFAULT_CODEX_BASE_PATH });
     assert(row.path === expectedPath, `${entityLabel} ${id} path mismatch`);
     assert(!paths.has(row.path), `Duplicate ${entityLabel} path ${row.path}`);
     paths.add(row.path);
   });
 }
 
-function validateWikiBundle(bundle) {
-  assert(bundle && typeof bundle === "object", "wiki bundle is required");
+function validateCodexBundle(bundle) {
+  assert(bundle && typeof bundle === "object", "codex bundle is required");
   const { manifest } = bundle;
-  assert(manifest && typeof manifest === "object", "wiki manifest is required");
-  assert(typeof manifest.schemaVersion === "number", "wiki manifest schemaVersion is required");
-  assert(typeof manifest.generatedAt === "string" && manifest.generatedAt, "wiki manifest missing generatedAt");
-  assert(typeof manifest.sourceCommit === "string" && manifest.sourceCommit, "wiki manifest missing sourceCommit");
-  assert(manifest.basePath === DEFAULT_WIKI_BASE_PATH, "wiki manifest basePath mismatch");
+  assert(manifest && typeof manifest === "object", "codex manifest is required");
+  assert(typeof manifest.schemaVersion === "number", "codex manifest schemaVersion is required");
+  assert(typeof manifest.generatedAt === "string" && manifest.generatedAt, "codex manifest missing generatedAt");
+  assert(typeof manifest.sourceCommit === "string" && manifest.sourceCommit, "codex manifest missing sourceCommit");
+  assert(manifest.basePath === DEFAULT_CODEX_BASE_PATH, "codex manifest basePath mismatch");
 
-  const expectedRoutes = getWikiRouteTemplates(DEFAULT_WIKI_BASE_PATH);
-  assert(JSON.stringify(manifest.routes || {}) === JSON.stringify(expectedRoutes), "wiki route templates mismatch");
+  const expectedRoutes = getCodexRouteTemplates(DEFAULT_CODEX_BASE_PATH);
+  assert(JSON.stringify(manifest.routes || {}) === JSON.stringify(expectedRoutes), "codex route templates mismatch");
 
   const items = Array.isArray(bundle.items) ? bundle.items : [];
   const skills = Array.isArray(bundle.skills) ? bundle.skills : [];
@@ -132,14 +132,14 @@ function validateWikiBundle(bundle) {
     });
   });
 
-  assert(manifest.counts && manifest.counts.items === items.length, "wiki item count mismatch");
-  assert(manifest.counts && manifest.counts.skills === skills.length, "wiki skill count mismatch");
-  assert(manifest.counts && manifest.counts.worlds === worlds.length, "wiki world count mismatch");
+  assert(manifest.counts && manifest.counts.items === items.length, "codex item count mismatch");
+  assert(manifest.counts && manifest.counts.skills === skills.length, "codex skill count mismatch");
+  assert(manifest.counts && manifest.counts.worlds === worlds.length, "codex world count mismatch");
 
   const indexes = manifest.indexes || {};
-  assert(JSON.stringify(indexes.items || []) === JSON.stringify(createEntityIndex(items, "itemId")), "wiki item index mismatch");
-  assert(JSON.stringify(indexes.skills || []) === JSON.stringify(createEntityIndex(skills, "skillId")), "wiki skill index mismatch");
-  assert(JSON.stringify(indexes.worlds || []) === JSON.stringify(createEntityIndex(worlds, "worldId")), "wiki world index mismatch");
+  assert(JSON.stringify(indexes.items || []) === JSON.stringify(createEntityIndex(items, "itemId")), "codex item index mismatch");
+  assert(JSON.stringify(indexes.skills || []) === JSON.stringify(createEntityIndex(skills, "skillId")), "codex skill index mismatch");
+  assert(JSON.stringify(indexes.worlds || []) === JSON.stringify(createEntityIndex(worlds, "worldId")), "codex world index mismatch");
 
   return bundle;
 }
@@ -147,6 +147,6 @@ function validateWikiBundle(bundle) {
 module.exports = {
   DEFAULT_FILENAMES,
   getDefaultDataDir,
-  loadWikiBundle,
-  validateWikiBundle
+  loadCodexBundle,
+  validateCodexBundle
 };
