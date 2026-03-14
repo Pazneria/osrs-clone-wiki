@@ -4,6 +4,8 @@ This repository hosts the standalone wiki site for the OSRS Clone project.
 
 The wiki does not duplicate gameplay facts by hand. Instead, it syncs a versioned export bundle from the sibling `OSRS Clone` repo and turns that bundle into static pages.
 
+GitHub Pages deployment is handled by `.github/workflows/deploy-pages.yml`. The workflow checks out both this repo and `Pazneria/osrs-clone`, builds the static site, and publishes `dist/osrs-clone-wiki/` to `https://pazneria.github.io/osrs-clone-wiki/`.
+
 ## Expected workspace layout
 
 This repo assumes the game repo sits beside it:

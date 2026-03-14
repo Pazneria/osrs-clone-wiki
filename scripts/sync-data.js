@@ -3,6 +3,7 @@ const path = require("path");
 const { getDefaultDataDir } = require("./lib/wiki-data");
 
 const DEFAULT_SOURCE_ROOT = path.resolve(__dirname, "..", "..", "OSRS Clone");
+const SOURCE_ROOT_ENV_VAR = "OSRS_CLONE_SOURCE_ROOT";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -10,7 +11,11 @@ function assert(condition, message) {
 
 function syncWikiData(options = {}) {
   const projectRoot = path.resolve(__dirname, "..");
-  const sourceRoot = path.resolve(options.sourceRoot || DEFAULT_SOURCE_ROOT);
+  const sourceRoot = path.resolve(
+    options.sourceRoot
+    || process.env[SOURCE_ROOT_ENV_VAR]
+    || DEFAULT_SOURCE_ROOT
+  );
   const outDir = path.resolve(options.outDir || getDefaultDataDir(projectRoot));
   const exportModulePath = path.join(sourceRoot, "tools", "content", "wiki-export.js");
 
@@ -43,5 +48,6 @@ if (require.main === module) {
 
 module.exports = {
   DEFAULT_SOURCE_ROOT,
+  SOURCE_ROOT_ENV_VAR,
   syncWikiData
 };
