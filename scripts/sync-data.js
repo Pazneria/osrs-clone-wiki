@@ -1,9 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 const { getDefaultDataDir } = require("./lib/codex-data");
+const { DEFAULT_CODEX_BASE_PATH } = require("./lib/codex-link-contract");
 
 const DEFAULT_SOURCE_ROOT = path.resolve(__dirname, "..", "..", "OSRS Clone");
 const SOURCE_ROOT_ENV_VAR = "OSRS_CLONE_SOURCE_ROOT";
+const LEGACY_CODEX_BASE_PATH = "/osrs-clone-wiki/";
 const EXPORT_MODULE_CANDIDATES = Object.freeze([
   {
     relativePath: path.join("tools", "content", "codex-export.js"),
@@ -17,6 +19,30 @@ const EXPORT_MODULE_CANDIDATES = Object.freeze([
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function rewriteLegacyCodexPaths(value) {
+  if (Array.isArray(value)) return value.map(rewriteLegacyCodexPaths);
+  if (!value || typeof value !== "object") {
+    return typeof value === "string"
+      ? value.replaceAll(LEGACY_CODEX_BASE_PATH, DEFAULT_CODEX_BASE_PATH)
+      : value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, entryValue]) => [key, rewriteLegacyCodexPaths(entryValue)])
+  );
+}
+
+function normalizeLegacyBundle(outDir) {
+  const jsonFiles = ["manifest.json", "items.json", "skills.json", "worlds.json"];
+  for (const filename of jsonFiles) {
+    const absPath = path.join(outDir, filename);
+    if (!fs.existsSync(absPath)) continue;
+    const original = JSON.parse(fs.readFileSync(absPath, "utf8"));
+    const rewritten = rewriteLegacyCodexPaths(original);
+    fs.writeFileSync(absPath, `${JSON.stringify(rewritten, null, 2)}\n`);
+  }
 }
 
 function syncCodexData(options = {}) {
@@ -52,6 +78,9 @@ function syncCodexData(options = {}) {
     `Codex export module did not expose ${exportModuleConfig.exportName}: ${exportModuleConfig.modulePath}`
   );
   exportCodexBundle(sourceRoot, outDir);
+  if (exportModuleConfig.exportName === "exportWikiBundle") {
+    normalizeLegacyBundle(outDir);
+  }
 
   return { sourceRoot, outDir };
 }
