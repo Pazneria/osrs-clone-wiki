@@ -2,20 +2,21 @@ const { buildCodexHomePath } = require("../lib/codex-link-contract");
 const { renderLayout } = require("./layout");
 const {
   buildSectionPath,
+  describeList,
   escapeHtml,
   formatNumber,
+  formatTicks,
   getItemIconAssetId,
   humanizeId,
   renderChipList,
   renderEntityIcon,
-  renderLinkList,
+  renderInlineLinkedText,
   renderStatGrid
 } = require("./shared");
 const {
   buildEntityLinkRows,
   renderGuideBlockSection,
   renderJourneyCard,
-  renderLinkedEntitySection,
   renderRichText
 } = require("./manual");
 
@@ -29,6 +30,72 @@ function countNodes(skill) {
 
 function countMerchants(skill) {
   return Array.isArray(skill.merchantIds) ? skill.merchantIds.length : 0;
+}
+
+function getEnemyIconAssetId(enemy) {
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  return String(
+    data.icon && data.icon.assetId
+    || data.appearance && data.appearance.assetId
+    || data.model && data.model.assetId
+    || ""
+  ).trim() || null;
+}
+
+function getEnemyLevel(enemy) {
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  return data.combatLevel !== undefined
+    ? data.combatLevel
+    : data.level !== undefined
+      ? data.level
+      : data.combat && data.combat.level !== undefined
+        ? data.combat.level
+        : null;
+}
+
+function getEnemyRespawnTicks(enemy) {
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  return data.respawnTicks !== undefined ? data.respawnTicks : enemy.respawnTicks !== undefined ? enemy.respawnTicks : null;
+}
+
+function getEnemyRoamingRadius(enemy) {
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  return data.roamingRadius !== undefined ? data.roamingRadius : enemy.roamingRadius !== undefined ? enemy.roamingRadius : null;
+}
+
+function getEnemyDropCount(enemy) {
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  const source = data.dropTable !== undefined ? data.dropTable : data.dropTables !== undefined ? data.dropTables : data.drops !== undefined ? data.drops : enemy.dropTable !== undefined ? enemy.dropTable : enemy.drops !== undefined ? enemy.drops : [];
+  const count = (value) => {
+    if (!value) return 0;
+    if (Array.isArray(value)) return value.reduce((sum, entry) => sum + count(entry), 0);
+    if (typeof value === "string") return String(value).trim() ? 1 : 0;
+    if (typeof value !== "object") return 0;
+    const direct = [
+      value.itemId,
+      value.rewardItemId,
+      value.outputItemId,
+      value.dropItemId
+    ].some(Boolean) || Array.isArray(value.itemIds);
+    if (direct) return 1;
+    return Object.keys(value).reduce((sum, key) => sum + count(value[key]), 0);
+  };
+  return count(source);
+}
+
+function buildEnemySummaryLine(enemy) {
+  const parts = [];
+  const level = getEnemyLevel(enemy);
+  const drops = getEnemyDropCount(enemy);
+  const respawn = getEnemyRespawnTicks(enemy);
+  const roam = getEnemyRoamingRadius(enemy);
+  const data = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+  if (level !== null && level !== undefined) parts.push(`Lvl ${formatNumber(level)}`);
+  if (drops) parts.push(`${formatNumber(drops)} drop${drops === 1 ? "" : "s"}`);
+  if (respawn !== null) parts.push(`${formatTicks(respawn)} respawn`);
+  if (roam !== null) parts.push(`Roam ${formatNumber(roam)}`);
+  if (data.attackStyle || data.combatStyle || data.family) parts.push(humanizeId(data.attackStyle || data.combatStyle || data.family));
+  return parts.length ? parts.join(" | ") : "Enemy encounter";
 }
 
 function normalizeManualContent(manualContent = {}) {
@@ -114,6 +181,12 @@ function renderManualEntryCard(bundle, entry, manualEntry, siteAssets, type) {
     `${formatNumber(Array.isArray(manualEntry.featuredWorldIds) ? manualEntry.featuredWorldIds.length : 0)} worlds`
   ];
   const supportingRows = buildManualLinkRows(bundle, manualEntry, type);
+  const supportCopy = supportingRows.length
+    ? `<p class="card-note">${renderInlineLinkedText(
+      `Best paired with ${describeList(supportingRows.slice(0, 4).map((row) => row.label))}.`,
+      { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [entry.path] }
+    )}</p>`
+    : "";
 
   return `
     <article class="entity-card entity-card--indexed">
@@ -128,12 +201,48 @@ function renderManualEntryCard(bundle, entry, manualEntry, siteAssets, type) {
         <div class="entity-card__copy">
           <p class="eyebrow">${escapeHtml(type === "skill" ? entry.skillId : entry.worldId)}</p>
           <h3><a href="${escapeHtml(entry.path)}">${escapeHtml(entry.title)}</a></h3>
-          ${renderRichText(manualEntry.overview, { emptyText: "No overview yet." })}
+          ${renderRichText(manualEntry.overview, {
+            emptyText: "No overview yet.",
+            linkRegistry: siteAssets.linkRegistry,
+            excludeHrefs: [entry.path]
+          })}
         </div>
       </div>
       ${renderChipList(labels, { className: "pill-list pill-list--dense" })}
-      ${renderRichText(manualEntry.howToGetStarted, { emptyText: "No start notes yet.", listClassName: "guide-list guide-list--compact" })}
-      ${supportingRows.length ? renderLinkList(supportingRows, { className: "manual-link-list", emptyText: "No linked pages yet." }) : ""}
+      ${renderRichText(manualEntry.howToGetStarted, {
+        emptyText: "No start notes yet.",
+        listClassName: "guide-list guide-list--compact",
+        linkRegistry: siteAssets.linkRegistry,
+        excludeHrefs: [entry.path]
+      })}
+      ${supportCopy}
+    </article>
+  `;
+}
+
+function renderEnemyCard(enemy, siteAssets) {
+  return `
+    <article class="entity-card entity-card--indexed">
+      <div class="entity-card__header">
+        ${renderEntityIcon({
+          siteAssets,
+          assetId: getEnemyIconAssetId(enemy),
+          label: enemy.title,
+          size: "md",
+          fallbackText: enemy.enemyId
+        })}
+        <div class="entity-card__copy">
+          <p class="eyebrow">${escapeHtml(enemy.enemyId)}</p>
+          <h3><a href="${escapeHtml(enemy.path)}">${escapeHtml(enemy.title)}</a></h3>
+          <p class="entity-card__lede">${escapeHtml(buildEnemySummaryLine(enemy))}</p>
+        </div>
+      </div>
+      ${renderChipList([
+        getEnemyLevel(enemy) !== null && getEnemyLevel(enemy) !== undefined ? `Lvl ${formatNumber(getEnemyLevel(enemy))}` : null,
+        getEnemyDropCount(enemy) ? `${formatNumber(getEnemyDropCount(enemy))} drops` : null,
+        getEnemyRespawnTicks(enemy) !== null ? `${formatTicks(getEnemyRespawnTicks(enemy))} respawn` : null,
+        getEnemyRoamingRadius(enemy) !== null ? `Roam ${formatNumber(getEnemyRoamingRadius(enemy))}` : null
+      ].filter(Boolean), { className: "pill-list pill-list--dense" })}
     </article>
   `;
 }
@@ -191,6 +300,7 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
   const startJourneys = sortJourneysForHome(manual.journeys).slice(0, 4);
   const featuredSkills = selectManualEntries(manual.skillsById, bundle.skills, 4);
   const featuredWorlds = selectManualEntries(manual.worldsById, bundle.worlds, 4);
+  const featuredEnemies = (bundle.enemies || []).slice().sort((left, right) => String(left.title || "").localeCompare(String(right.title || ""))).slice(0, 4);
   const goalRows = startJourneys.map((journey) => ({
     href: journey.path,
     label: journey.title,
@@ -204,6 +314,7 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
         { label: "Journeys", value: manual.journeys.length, detail: "Start-here routes" },
         { label: "Skills", value: bundle.skills.length, detail: "Manual-backed pages" },
         { label: "Worlds", value: bundle.worlds.length, detail: "Region references" },
+        { label: "Enemies", value: bundle.enemies.length, detail: "Encounter pages" },
         { label: "Goal routes", value: goalRows.length, detail: "Player entry points" }
       ], {
         className: "hero-stat-grid",
@@ -215,8 +326,8 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
   const body = `
     ${renderGuideBlockSection({
       eyebrow: "Manual Portal",
-      title: "A homepage that starts with player goals",
-      badges: ["Start here", "Manual driven", "Static-site friendly"],
+      title: "A homepage that tracks what is live right now",
+      badges: ["Encounter pages", "Talk-to aware", "Quest-ready"],
       blocks: [
         {
           label: "At a glance",
@@ -225,29 +336,34 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
         {
           label: "How to use it",
           body: [
-            "Pick a journey first, then open the related skill and world pages to keep the loop visible.",
-            "The homepage is driven by `manualContent`, so the cards stay aligned with the exported manual data."
+            "Start with a journey or the first live quest, then open the linked skills, encounters, NPCs, and worlds to keep the active loop visible.",
+            "The homepage is driven by `manualContent`, so the cards stay aligned with the exported reference data instead of drifting into hand-wavy summaries."
           ]
         },
         {
-          label: "Why it stays stable",
+          label: "What's live now",
           body: editorialCards.length
             ? editorialCards.map((section) => `${section.title}: ${section.body}`)
             : ["Stable IDs and exported content keep the portal predictable across builds."]
         }
-      ]
+      ],
+      linkRegistry: siteAssets.linkRegistry
     })}
 
     <section class="section-card">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Start Here Journeys</p>
-          <h3>Choose a route that already explains the loop.</h3>
+          <h3>Choose a route that already explains the loop, or points you toward the first live quest.</h3>
         </div>
         <a class="text-link" href="${escapeHtml(buildSectionPath("journeys"))}">Browse all journeys</a>
       </div>
       <div class="entity-grid">
-        ${startJourneys.map((journey) => renderJourneyCard(journey, { monogram: "JR" })).join("")}
+        ${startJourneys.map((journey) => renderJourneyCard(journey, {
+          monogram: "JR",
+          linkRegistry: siteAssets.linkRegistry,
+          excludeHrefs: [journey.path]
+        })).join("")}
       </div>
     </section>
 
@@ -268,7 +384,7 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
       <div class="section-heading">
         <div>
           <p class="eyebrow">World Highlights</p>
-          <h3>Regions that tell you what is actually available before you go.</h3>
+          <h3>Regions that tell you what is actually live before you go, including service districts and starter-town homesteads.</h3>
         </div>
         <a class="text-link" href="${escapeHtml(buildSectionPath("world"))}">Open world index</a>
       </div>
@@ -280,18 +396,33 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
     <section class="section-card">
       <div class="section-heading">
         <div>
+          <p class="eyebrow">Enemy Encounters</p>
+          <h3>Live encounter pages with danger level, roaming, respawn, and loot at a glance.</h3>
+        </div>
+        <a class="text-link" href="${escapeHtml(buildSectionPath("enemies"))}">Open enemies index</a>
+      </div>
+      <div class="entity-grid">
+        ${featuredEnemies.map((enemy) => renderEnemyCard(enemy, siteAssets)).join("")}
+      </div>
+    </section>
+
+    <section class="section-card">
+      <div class="section-heading">
+        <div>
           <p class="eyebrow">Player Goal Entry Points</p>
-          <h3>Jump into the path that matches what you want to do next.</h3>
+          <h3>Jump into the path that matches what you want to do next, from starter loops to the first live quest.</h3>
         </div>
         <a class="text-link" href="${escapeHtml(buildSectionPath("journeys"))}">See all goal routes</a>
       </div>
-      <div class="page-stack page-stack--tight">
-        ${renderLinkList(goalRows, { className: "manual-link-list", emptyText: "No journey entry points yet." })}
-        ${supportRows.length ? renderLinkedEntitySection({
-          eyebrow: "Supporting Pages",
-          title: "Open the items, skills, and worlds these routes depend on",
-          rows: supportRows
-        }) : ""}
+      <div class="prose">
+        <p>${renderInlineLinkedText(
+          `Good starting routes: ${describeList(goalRows.map((row) => row.label))}.`,
+          { linkRegistry: siteAssets.linkRegistry }
+        )}</p>
+        ${supportRows.length ? `<p>${renderInlineLinkedText(
+          `Supporting pages that reinforce those routes: ${describeList(supportRows.map((row) => row.label))}.`,
+          { linkRegistry: siteAssets.linkRegistry }
+        )}</p>` : ""}
       </div>
     </section>
 
@@ -305,7 +436,9 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
       ${renderChipList([
         bundle.manifest.routes.item,
         bundle.manifest.routes.skill,
+        bundle.manifest.routes.enemy,
         bundle.manifest.routes.world,
+        buildSectionPath("enemies"),
         buildSectionPath("journeys")
       ], { className: "pill-list" })}
     </section>
@@ -320,9 +453,9 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
     heroTitle: editorial.siteTitle,
     heroBody: `
       <p>${escapeHtml(editorial.tagline)}</p>
-      <p>${escapeHtml("Open a journey, inspect the supporting skills and worlds, and keep the manual tied to the exported game data.")}</p>
+      <p>${escapeHtml("Open a journey, inspect the supporting encounters, Talk-to NPCs, homestead-heavy world pages, and the first live quest, then follow the links back to the exported game data.")}</p>
     `,
-    heroBadges: ["Reference-first", "Manual-driven", "Stable deep links"],
+    heroBadges: ["Reference-first", "Encounter pages", "Talk-to and quest aware"],
     heroAside,
     body
   });

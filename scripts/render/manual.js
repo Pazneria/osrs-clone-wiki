@@ -3,6 +3,7 @@ const {
   escapeHtml,
   humanizeId,
   renderChipList,
+  renderInlineLinkedText,
   renderLinkList
 } = require("./shared");
 
@@ -15,8 +16,10 @@ function normalizeParagraphs(value) {
 function renderRichText(value, options = {}) {
   const paragraphs = normalizeParagraphs(value);
   if (!paragraphs.length) return `<p class="subtle">${escapeHtml(options.emptyText || "No manual notes yet.")}</p>`;
-  if (paragraphs.length === 1) return `<p class="card-note">${escapeHtml(paragraphs[0])}</p>`;
-  return `<ul class="${escapeHtml(options.listClassName || "guide-list")}">${paragraphs.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`;
+  if (paragraphs.length === 1) {
+    return `<p class="card-note">${renderInlineLinkedText(paragraphs[0], options)}</p>`;
+  }
+  return `<ul class="${escapeHtml(options.listClassName || "guide-list")}">${paragraphs.map((entry) => `<li>${renderInlineLinkedText(entry, options)}</li>`).join("")}</ul>`;
 }
 
 function renderGuideBlockSection(options = {}) {
@@ -38,7 +41,7 @@ function renderGuideBlockSection(options = {}) {
         ${blocks.map((block) => `
           <article class="section-card section-card--nested manual-card">
             <p class="eyebrow">${escapeHtml(block.label)}</p>
-            ${renderRichText(block.body)}
+            ${renderRichText(block.body, options)}
           </article>
         `).join("")}
       </div>
@@ -76,7 +79,11 @@ function renderJourneyCard(journey, options = {}) {
         <div class="entity-card__copy">
           <p class="eyebrow">${escapeHtml(journey.journeyId)}</p>
           <h3><a href="${escapeHtml(journey.path)}">${escapeHtml(journey.title)}</a></h3>
-          ${renderRichText(journey.summary, { emptyText: "No summary." })}
+          ${renderRichText(journey.summary, {
+            emptyText: "No summary.",
+            linkRegistry: options.linkRegistry,
+            excludeHrefs: Array.isArray(options.excludeHrefs) ? options.excludeHrefs : []
+          })}
         </div>
       </div>
       ${renderChipList(meta, { className: "pill-list pill-list--dense" })}
@@ -108,6 +115,14 @@ function buildEntityLinkRows(bundle, options = {}) {
       href: buildCodexEntityPath("world", worldId),
       label: world ? world.title : humanizeId(worldId),
       meta: "World"
+    });
+  });
+  (Array.isArray(options.enemyIds) ? options.enemyIds : []).forEach((enemyId) => {
+    const enemy = bundle.enemies.find((entry) => entry.enemyId === enemyId);
+    rows.push({
+      href: buildCodexEntityPath("enemy", enemyId),
+      label: enemy ? enemy.title : humanizeId(enemyId),
+      meta: "Enemy"
     });
   });
   return rows;

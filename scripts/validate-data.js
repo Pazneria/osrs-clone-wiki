@@ -15,7 +15,7 @@ function run() {
   const manualContent = loadManualContent(projectRoot, bundle);
   console.log(
     `Validated codex bundle `
-    + `(${bundle.items.length} items, ${bundle.skills.length} skills, ${bundle.worlds.length} worlds, `
+    + `(${bundle.items.length} items, ${bundle.skills.length} skills, ${bundle.worlds.length} worlds, ${bundle.enemies.length} enemies, `
     + `${Object.keys(itemEditorial.entriesByItemId).length} item descriptions, `
     + `${manualContent.journeys.journeys.length} journeys).`
   );

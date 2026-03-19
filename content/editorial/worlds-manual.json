@@ -3,29 +3,29 @@
   "entries": {
     "starter_town": {
       "overview": [
-        "Starter Town is the project's main service hub, packing trade, crafting, fishing, smithing, and runecrafting into one compact region.",
-        "Its route layout is intentionally dense, with the castle, general store, smithing hall, ponds, groves, mines, and altars all close enough to support quick loop testing.",
-        "The world exports the broadest early-game resource coverage in the bundle, so it reads as the default place to learn how systems feed into one another."
+        "Starter Town is the project's main service hub and now also its broadest authored combat region, with encounter pockets running from the castle training dummy and south field out to the far goblin, boar, and wolf bands.",
+        "The hub is denser than before: named NPCs live in bespoke homesteads and work plots, town NPCs roam instead of reading as static markers, and the castle, store, smithing, tannery, pond, grove, mine, and altar lanes all connect cleanly.",
+        "It still exports the broadest early-game resource coverage in the bundle, but the current build also uses it as the reference map for dialogue, quest hooks, merchant gating, bespoke NPC presentation, and safe-versus-dangerous route spacing."
       ],
       "whyItMatters": [
-        "This is the clearest onboarding world because it shows the full core loop: gather, refine, craft, sell, and travel without long detours.",
-        "It anchors the economy layer with merchants for tools, supplies, ores, gems, runecrafting stock, and buyback services.",
-        "It also exposes the widest set of skill routes, which makes it the best reference point for understanding how the rest of the world content hangs together."
+        "This is still the clearest onboarding world, but now it shows more of the real game loop in one place: gather, refine, craft, talk, quest, trade, travel, and fight without leaving the starter map.",
+        "It is the main reference world for authored encounter rollout, with roaming chickens, rats, goblins, boars, wolves, guards, and training content layered around protected service lanes.",
+        "It also anchors the first named-NPC presentation pass: bespoke homesteads, Talk-to dialogue, roaming service NPC behavior, Tanner Rusk's dedicated tannery plot and bespoke appearance, and his first quest/shop gate."
       ],
       "howToGetStarted": [
-        "Begin at the default spawn, then check the nearby merchants before branching to the mine, pond, grove, or altar line.",
-        "Use the smithing hall to turn early ore into bars, then convert those bars into armor, weapons, or Crafting bases.",
-        "Treat the woodcutting routes and altar routes as parallel progression tracks: one feeds handles, shafts, and staffs, while the other feeds rune production."
+        "Begin in the central hub, use Talk-to on the named NPCs, and learn the lane layout before pushing into the outer fields where goblins, boars, and wolves roam much more heavily than before.",
+        "Treat the training dummy pocket and south-field critters as the safe combat read, then step outward into the broader authored encounter bands once you know where the town routes stay protected.",
+        "Visit Tanner Rusk early: his tannery plot is now a major crafting landmark, and Hides of the Frontier is the clearest first example of how dialogue, drops, quests, and merchant gating connect."
       ],
       "connectedSystems": [
-        "Services: general store, fishing supplier, fishing teacher, crafting teacher, Tanner Rusk, Borin Ironvein, Thrain Deepforge, Elira Gemhand, Rune Tutor, and Combination Sage.",
-        "Routes: starter mine, iron mine, coal mine, precious mine, gem mine, rune essence mine, starter grove, oak path, willow bend, maple ridge, yew frontier, and the four altar routes.",
-        "Skills: cooking, fishing, mining, runecrafting, and woodcutting."
+        "Services and NPCs: general store, fishing supplier, fishing teacher, crafting teacher, Tanner Rusk, Borin Ironvein, Thrain Deepforge, Elira Gemhand, Rune Tutor, Combination Sage, and the caravan guides, all with Talk-to dialogue and authored roaming placements.",
+        "Combat: training dummy, guards, and large authored roaming populations of rats, chickens, goblins, boars, and wolves spread from starter lanes to the far outskirts.",
+        "Routes, access, and progression: starter mine, iron mine, coal mine, precious mine, gem mine, rune essence mine, starter grove, oak path, willow bend, maple ridge, yew frontier, the four altar routes, the cleaned-up staircase/access links, and Tanner Rusk's first quest/shop gate."
       ],
       "nextSteps": [
-        "Use Starter Town as the baseline world for comparing resource density, merchant coverage, and route spacing.",
-        "Cross-check its ore, fish, wood, and rune-adjacent loops against the item pages they unlock.",
-        "After the hub is clear, follow the road connection to North Road Camp and compare the more compact outpost layout."
+        "Use Starter Town as the baseline world for comparing hub-safe paths against outer encounter density, roaming behavior, and named-NPC placement quality.",
+        "Cross-check Tanner Rusk's tannery, dialogue, quest gate, and leather shop against the crafting pages, item pages, and the newer enemy drops that feed them.",
+        "After the hub is clear, follow the road connection to North Road Camp and compare its tighter threshold-guarded outpost flow to Starter Town's broader encounter lattice."
       ],
       "featuredItemIds": [
         "hammer",
@@ -47,17 +47,20 @@
       "featuredWorldIds": [
         "north_road_camp"
       ],
-      "featuredJourneyIds": []
+      "featuredJourneyIds": [
+        "early_progression",
+        "hides_of_the_frontier"
+      ]
     },
     "north_road_camp": {
       "overview": [
         "North Road Camp is a smaller forward region that compresses the same core skill families into a tighter outpost layout.",
-        "Its quarry, brazier, pine loop, and caravan point sit close together, so it reads as a faster field-test version of the starter loop.",
-        "The gated crystal seam gives the camp a clear progression wall, which makes the region feel like a checkpoint rather than a duplicate of Starter Town."
+        "Its quarry, brazier, pine loop, caravan point, and guarded road threshold sit close together, so it reads as a faster field-test version of the starter loop.",
+        "The gated crystal seam and outer goblin, boar, and wolf pockets give the camp a clearer progression wall, which makes the region feel like a checkpoint rather than a duplicate of Starter Town."
       ],
       "whyItMatters": [
         "This world proves the project can support a second playable region without rebuilding the entire hub structure.",
-        "It combines minimal service coverage with enough resources to stay useful, which is important for testing sparse-but-functional world design.",
+        "It combines minimal service coverage with enough resources and roadside combat pressure to stay useful, which is important for testing sparse-but-functional world design.",
         "The locked gem seam adds a concrete progression hook and makes the camp valuable both early and later."
       ],
       "howToGetStarted": [
@@ -72,7 +75,7 @@
       ],
       "nextSteps": [
         "Use North Road Camp as the field-test region for early mining and travel.",
-        "Compare its route density to Starter Town so the difference between a hub and an outpost stays obvious.",
+        "Compare its route density and threshold-guarded road encounters to Starter Town so the difference between a hub and an outpost stays obvious.",
         "Return after progression to unlock the crystal seam and verify the gated resource path."
       ],
       "featuredItemIds": [
@@ -95,7 +98,9 @@
       "featuredWorldIds": [
         "starter_town"
       ],
-      "featuredJourneyIds": []
+      "featuredJourneyIds": [
+        "early_progression"
+      ]
     }
   }
 }

@@ -13,8 +13,9 @@ const {
   humanizeId,
   renderChipList,
   renderEntityIcon,
+  renderInlineLinkedList,
+  renderInlineLinkedText,
   renderJsonDetails,
-  renderLinkList,
   renderMetaList,
   renderSearchHeader,
   renderStatGrid,
@@ -204,7 +205,7 @@ function getJourneyIdsForSkill(skillId, manualEntry, journeys) {
   return ids;
 }
 
-function renderManualGuidanceSection(skill, manualEntry) {
+function renderManualGuidanceSection(skill, manualEntry, linkRegistry) {
   const featuredItemCount = manualEntry && Array.isArray(manualEntry.featuredItemIds) ? manualEntry.featuredItemIds.length : 0;
   const featuredSkillCount = manualEntry && Array.isArray(manualEntry.featuredSkillIds) ? manualEntry.featuredSkillIds.length : 0;
   const featuredWorldCount = manualEntry && Array.isArray(manualEntry.featuredWorldIds) ? manualEntry.featuredWorldIds.length : 0;
@@ -219,7 +220,9 @@ function renderManualGuidanceSection(skill, manualEntry) {
       `${featuredWorldCount} featured worlds`,
       `${featuredJourneyCount} featured journeys`
     ],
-    blocks: buildManualGuidanceBlocks(skill, manualEntry)
+    blocks: buildManualGuidanceBlocks(skill, manualEntry),
+    linkRegistry,
+    excludeHrefs: [skill.path]
   });
 }
 
@@ -240,7 +243,7 @@ function renderUnlockHighlightsSection(skill, itemIndex) {
   `;
 }
 
-function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry) {
+function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry, linkRegistry) {
   const linkedItemIds = Array.isArray(manualEntry && manualEntry.featuredItemIds) && manualEntry.featuredItemIds.length
     ? manualEntry.featuredItemIds
     : skill.relatedItemIds;
@@ -251,6 +254,15 @@ function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex,
     ? manualEntry.featuredWorldIds
     : skill.relatedWorldIds;
 
+  const itemLabels = linkedItemIds.map((itemId) => (itemIndex.get(itemId) || {}).title || itemId);
+  const skillLabels = linkedSkillIds.map((relatedSkillId) => (skillIndex.get(relatedSkillId) || {}).title || relatedSkillId);
+  const worldLabels = linkedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId);
+  const summaryParagraphs = [
+    itemLabels.length ? `This skill is most visible through ${describeList(itemLabels)}.` : "",
+    skillLabels.length ? `It overlaps with ${describeList(skillLabels)}.` : "",
+    worldLabels.length ? `The loop is anchored in ${describeList(worldLabels)}.` : ""
+  ].filter(Boolean);
+
   return `
     <section class="section-card">
       <div class="section-heading">
@@ -259,34 +271,19 @@ function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex,
           <h3>Items, skills, and worlds that anchor the loop</h3>
         </div>
       </div>
-      <div class="split-grid">
-        <article class="section-card section-card--nested">
-          <h4>Related Items</h4>
-          ${renderLinkList(linkedItemIds.map((itemId) => ({
-            href: buildCodexEntityPath("item", itemId),
-            label: (itemIndex.get(itemId) || {}).title || itemId
-          })), { emptyText: "No related items yet." })}
-        </article>
-        <article class="section-card section-card--nested">
-          <h4>Related Skills</h4>
-          ${renderLinkList(linkedSkillIds.map((relatedSkillId) => ({
-            href: buildCodexEntityPath("skill", relatedSkillId),
-            label: (skillIndex.get(relatedSkillId) || {}).title || relatedSkillId
-          })), { emptyText: "No related skills yet." })}
-        </article>
-        <article class="section-card section-card--nested">
-          <h4>Related Worlds</h4>
-          ${renderLinkList(linkedWorldIds.map((worldId) => ({
-            href: buildCodexEntityPath("world", worldId),
-            label: (worldIndex.get(worldId) || {}).title || worldId
-          })), { emptyText: "No linked worlds yet." })}
-        </article>
-      </div>
+      ${summaryParagraphs.length
+        ? `<div class="prose">${summaryParagraphs.map((paragraph) => `<p>${renderInlineLinkedText(paragraph, { linkRegistry, excludeHrefs: [skill.path] })}</p>`).join("")}</div>`
+        : `<p class="subtle">No connected systems yet.</p>`}
+      ${renderMetaList([
+        { label: "Related items", html: renderInlineLinkedList(itemLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) },
+        { label: "Related skills", html: renderInlineLinkedList(skillLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) },
+        { label: "Related worlds", html: renderInlineLinkedList(worldLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) }
+      ], { emptyText: "No connected systems yet." })}
     </section>
   `;
 }
 
-function renderJourneySection(skill, manualEntry, journeys) {
+function renderJourneySection(skill, manualEntry, journeys, linkRegistry) {
   const journeyIds = getJourneyIdsForSkill(skill.skillId, manualEntry, journeys);
   const journeyMap = new Map(journeys.map((journey) => [journey.journeyId, journey]));
   const spotlightJourneys = journeyIds.map((journeyId) => journeyMap.get(journeyId)).filter(Boolean);
@@ -295,15 +292,16 @@ function renderJourneySection(skill, manualEntry, journeys) {
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Journey Links</p>
+          <p class="eyebrow">Guided Routes</p>
           <h3>Guided routes that teach this skill in context</h3>
         </div>
       </div>
-      ${spotlightJourneys.length ? `
-        <div class="entity-grid">
-          ${spotlightJourneys.slice(0, 4).map((journey) => renderJourneyCard(journey, { monogram: journey.journeyId.slice(0, 2).toUpperCase() })).join("")}
-        </div>
-      ` : `<p class="subtle">No linked journeys were exported for this skill.</p>`}
+      ${spotlightJourneys.length
+        ? `<div class="prose"><p>${renderInlineLinkedText(
+          `Follow ${describeList(spotlightJourneys.slice(0, 4).map((journey) => journey.title))} if you want guided progression instead of reading ${skill.title} in isolation.`,
+          { linkRegistry, excludeHrefs: [skill.path] }
+        )}</p></div>`
+        : `<p class="subtle">No linked journeys were exported for this skill.</p>`}
     </section>
   `;
 }
@@ -364,7 +362,7 @@ function buildRecipeRows(skill, itemIndex) {
   }).sort((left, right) => (left.level || 0) - (right.level || 0) || left.output.localeCompare(right.output));
 }
 
-function renderRecipeSection(skill, itemIndex) {
+function renderRecipeSection(skill, itemIndex, linkRegistry) {
   const rows = buildRecipeRows(skill, itemIndex);
   if (!rows.length) return "";
   return `
@@ -385,8 +383,8 @@ function renderRecipeSection(skill, itemIndex) {
           },
           { label: "Level", render: (row) => escapeHtml(formatNumber(row.level)) },
           { label: "XP", render: (row) => escapeHtml(formatNumber(row.xp)) },
-          { label: "Inputs", render: (row) => escapeHtml(row.inputs || "None") },
-          { label: "Tools / Station", render: (row) => escapeHtml(`${row.tools} | ${row.station}`) }
+          { label: "Inputs", render: (row) => renderInlineLinkedText(row.inputs || "None", { linkRegistry }) },
+          { label: "Tools / Station", render: (row) => renderInlineLinkedText(`${row.tools} | ${row.station}`, { linkRegistry }) }
         ],
         rows,
         emptyText: "No recipe rows exported."
@@ -395,7 +393,7 @@ function renderRecipeSection(skill, itemIndex) {
   `;
 }
 
-function renderNodeSection(skill, itemIndex) {
+function renderNodeSection(skill, itemIndex, linkRegistry) {
   const nodeTable = skill.data && skill.data.nodeTable && typeof skill.data.nodeTable === "object" ? skill.data.nodeTable : {};
   const nodeIds = Object.keys(nodeTable);
   if (!nodeIds.length) return "";
@@ -427,8 +425,8 @@ function renderNodeSection(skill, itemIndex) {
                   columns: [
                     { label: "Method", render: (row) => escapeHtml(humanizeId(row.methodId)) },
                     { label: "Unlock", render: (row) => escapeHtml(formatNumber(row.unlockLevel)) },
-                    { label: "Tools", render: (row) => escapeHtml(row.tools) },
-                    { label: "Rewards", render: (row) => escapeHtml(row.rewards) }
+                    { label: "Tools", render: (row) => renderInlineLinkedText(row.tools, { linkRegistry }) },
+                    { label: "Rewards", render: (row) => renderInlineLinkedText(row.rewards, { linkRegistry }) }
                   ],
                   rows: methods.map((method) => ({
                     methodId: method.methodId,
@@ -497,7 +495,7 @@ function renderNodeSection(skill, itemIndex) {
   `;
 }
 
-function renderMerchantSection(skill, itemIndex) {
+function renderMerchantSection(skill, itemIndex, linkRegistry) {
   const merchantTable = skill.data && skill.data.economy && skill.data.economy.merchantTable
     ? skill.data.economy.merchantTable
     : {};
@@ -516,9 +514,19 @@ function renderMerchantSection(skill, itemIndex) {
             <h4>${escapeHtml(`${(merchant.buys || []).length} buys | ${(merchant.sells || []).length} sells`)}</h4>
             ${renderMetaList([
               { label: "Strict buys", value: merchant.strictBuys ? "Yes" : "No" },
-              { label: "Unlocks", value: merchant.unlocks ? `Threshold ${merchant.unlocks.threshold || "varies"}` : merchant.pouchUnlocks ? describeList(Object.keys(merchant.pouchUnlocks).map((itemId) => `${humanizeId(itemId)} @ ${merchant.pouchUnlocks[itemId]}`)) : "None" },
-              { label: "Buys", value: compactItemList(merchant.buys, itemIndex) },
-              { label: "Sells", value: compactItemList(merchant.sells, itemIndex) }
+              {
+                label: "Unlocks",
+                html: renderInlineLinkedText(
+                  merchant.unlocks
+                    ? `Threshold ${merchant.unlocks.threshold || "varies"}`
+                    : merchant.pouchUnlocks
+                      ? describeList(Object.keys(merchant.pouchUnlocks).map((itemId) => `${humanizeId(itemId)} @ ${merchant.pouchUnlocks[itemId]}`))
+                      : "None",
+                  { linkRegistry }
+                )
+              },
+              { label: "Buys", html: renderInlineLinkedText(compactItemList(merchant.buys, itemIndex), { linkRegistry }) },
+              { label: "Sells", html: renderInlineLinkedText(compactItemList(merchant.sells, itemIndex), { linkRegistry }) }
             ], { emptyText: "No merchant data." })}
           </article>
         `;
@@ -544,13 +552,13 @@ function renderMerchantSection(skill, itemIndex) {
         </div>
       </div>
       ${renderMetaList([
-        { label: "Primary resource", value: getPrimaryResource(skill, itemIndex) },
+        { label: "Primary resource", html: renderInlineLinkedText(getPrimaryResource(skill, itemIndex), { linkRegistry }) },
         { label: "General store fallback", value: skill.data && skill.data.economy && skill.data.economy.generalStoreFallback ? describeList(Object.keys(skill.data.economy.generalStoreFallback)) : "None" }
       ])}
       ${merchantCards}
       ${renderTable({
         columns: [
-          { label: "Item", render: (row) => escapeHtml(row.itemLabel) },
+          { label: "Item", render: (row) => renderInlineLinkedText(row.itemLabel, { linkRegistry }) },
           { label: "Buy", render: (row) => escapeHtml(row.buy === null || row.buy === undefined ? "None" : formatNumber(row.buy)) },
           { label: "Sell", render: (row) => escapeHtml(row.sell === null || row.sell === undefined ? "None" : formatNumber(row.sell)) }
         ],
@@ -622,10 +630,10 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
   `;
 
   const body = `
-    ${renderManualGuidanceSection(skill, manualEntry)}
+    ${renderManualGuidanceSection(skill, manualEntry, siteAssets.linkRegistry)}
     ${renderUnlockHighlightsSection(skill, itemIndex)}
-    ${renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry)}
-    ${renderJourneySection(skill, manualEntry, journeys)}
+    ${renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry, siteAssets.linkRegistry)}
+    ${renderJourneySection(skill, manualEntry, journeys, siteAssets.linkRegistry)}
     <section class="section-card">
       <div class="section-heading">
         <div>
@@ -635,16 +643,22 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
       </div>
       ${renderMetaList([
         { label: "Skill ID", value: skill.skillId },
-        { label: "Primary resource", value: getPrimaryResource(skill, itemIndex) },
+        { label: "Primary resource", html: renderInlineLinkedText(getPrimaryResource(skill, itemIndex), { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [skill.path] }) },
         { label: "Referenced items", value: skill.relatedItemIds.length },
-        { label: "Referenced worlds", value: skill.relatedWorldIds.length },
+        {
+          label: "Referenced worlds",
+          html: renderInlineLinkedList(
+            skill.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }
+          )
+        },
         { label: "Recipe count", value: countRecipes(skill) },
         { label: "Node families", value: countNodes(skill) }
       ])}
     </section>
-    ${renderRecipeSection(skill, itemIndex)}
-    ${renderNodeSection(skill, itemIndex)}
-    ${renderMerchantSection(skill, itemIndex)}
+    ${renderRecipeSection(skill, itemIndex, siteAssets.linkRegistry)}
+    ${renderNodeSection(skill, itemIndex, siteAssets.linkRegistry)}
+    ${renderMerchantSection(skill, itemIndex, siteAssets.linkRegistry)}
     ${renderFormulaSection(skill)}
     <section class="section-card">
       ${renderJsonDetails("Raw exported skill data", skill.data)}
@@ -660,7 +674,7 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
       pageTitle: skill.title,
       eyebrow: "Skill Reference",
       heroTitle: skill.title,
-      heroBody: `<p>${escapeHtml(`Use this page to review ${skill.title}'s manual guidance, unlock highlights, connected systems, and journey links before opening the raw export bundle.`)}</p>`,
+      heroBody: `<p>${escapeHtml(`Use this page to review ${skill.title}'s manual guidance, unlock highlights, inline reference context, and guided routes before opening the raw export bundle.`)}</p>`,
       heroBadges: [getPrimaryResource(skill, itemIndex), `${countRecipes(skill)} recipes`, `${countNodes(skill)} node families`],
       heroAside,
       body
@@ -689,7 +703,7 @@ function renderSkillIndexPage(bundle, editorial, manualContentOrSiteAssets, mayb
           <div class="entity-card__copy">
             <p class="eyebrow">${escapeHtml(skill.skillId)}</p>
             <h3><a href="${escapeHtml(skill.path)}">${escapeHtml(skill.title)}</a></h3>
-            <p class="entity-card__lede">${escapeHtml(teaser)}</p>
+            <p class="entity-card__lede">${renderInlineLinkedText(teaser, { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [skill.path] })}</p>
           </div>
         </div>
         ${renderChipList([
@@ -701,7 +715,11 @@ function renderSkillIndexPage(bundle, editorial, manualContentOrSiteAssets, mayb
       </article>
     `;
   }).join("");
-  const journeySpotlights = manualJourneys.slice(0, 4).map((journey) => renderJourneyCard(journey, { monogram: journey.journeyId.slice(0, 2).toUpperCase() })).join("");
+  const journeySpotlights = manualJourneys.slice(0, 4).map((journey) => renderJourneyCard(journey, {
+    monogram: journey.journeyId.slice(0, 2).toUpperCase(),
+    linkRegistry: siteAssets.linkRegistry,
+    excludeHrefs: [journey.path]
+  })).join("");
 
   const heroAside = `
     <div class="hero-panel">

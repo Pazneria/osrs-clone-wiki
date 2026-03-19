@@ -9,6 +9,12 @@
       "uses": "No major downstream crafting use is exported, so it mainly functions as a minor economy item.",
       "status": "draft"
     },
+    "boar_tusk": {
+      "description": "A boar tusk kept as one of the first animal-specific trophy drops in the starter combat loop.",
+      "acquisition": "It drops from Boars in the outer fields of Starter Town and North Road Camp.",
+      "uses": "The current export does not tie it into recipes or merchant tables, but it fits the same outer-field progression lane that feeds Tanner Rusk's tannery-side quest arc.",
+      "status": "draft"
+    },
     "coins": {
       "description": "Standard currency used across shop, trade, and value calculations.",
       "acquisition": "The export does not expose a single primary source, so treat coins as general-purpose currency earned through broader gameplay systems.",
@@ -19,6 +25,24 @@
       "description": "A bundled feather resource used to finish headless arrow recipes in Fletching.",
       "acquisition": "Sold by the Fletching Supplier in the exported fletching economy tables.",
       "uses": "Combined with shafts across each wood tier to produce headless arrows for later arrow assembly.",
+      "status": "draft"
+    },
+    "goblin_club": {
+      "description": "A rough goblin club recovered as low-tier camp loot rather than player-ready equipment.",
+      "acquisition": "It drops from Goblin Grunts in Starter Town and North Road Camp.",
+      "uses": "The current export does not place it in recipes or shop stock, so it mainly marks the jump from critter drops into roaming goblin encounters.",
+      "status": "draft"
+    },
+    "guard_crest": {
+      "description": "A guard crest taken as a recognizable patrol drop with more identity than the starter animal trophies.",
+      "acquisition": "It drops from Guards in Starter Town and North Road Camp.",
+      "uses": "The current export does not route it into crafting or merchant loops, so it mainly serves as higher-tier patrol loot and named-faction flavor.",
+      "status": "draft"
+    },
+    "guard_spear": {
+      "description": "A guard spear recovered as loot rather than exported player equipment.",
+      "acquisition": "It drops from Guards in Starter Town and North Road Camp.",
+      "uses": "No direct equipment, recipe, or merchant path is exported for it yet, so it currently reads as higher-tier guard loot with presentation value more than utility.",
       "status": "draft"
     },
     "hammer": {
@@ -33,6 +57,12 @@
       "uses": "Used to shape logs and related materials in fletching workflows, and it also appears in the fletching economy tables.",
       "status": "draft"
     },
+    "rat_tail": {
+      "description": "A rat tail kept as a disposable proof-of-kill drop from the very bottom of the combat ladder.",
+      "acquisition": "It drops from Rats in Starter Town and North Road Camp.",
+      "uses": "The current export does not attach it to recipes or merchant tables, so it mainly serves as low-value starter loot and encounter flavor.",
+      "status": "draft"
+    },
     "soft_clay": {
       "description": "A worked clay resource kept as a conservative crafting-material entry.",
       "acquisition": "No direct recipe or gathering source is exported for soft clay, so its acquisition remains intentionally sparse.",
@@ -43,6 +73,12 @@
       "description": "A basic firemaking tool used to ignite logs.",
       "acquisition": "Stocked by general stores in Starter Town and North Road Camp through the exported firemaking and general-store economy data.",
       "uses": "Used to light logs for Firemaking.",
+      "status": "draft"
+    },
+    "wolf_fang": {
+      "description": "A wolf fang kept as a more dangerous animal trophy from the far-out starter-region encounter bands.",
+      "acquisition": "It drops from Wolves in the outer reaches of Starter Town and North Road Camp.",
+      "uses": "The current export does not tie it into recipes or merchant tables, but it reads cleanly as part of the same outer-field pressure that frames Tanner Rusk's first quest and tannery progression.",
       "status": "draft"
     }
   }

@@ -5,8 +5,8 @@
       "journeyId": "early_progression",
       "title": "Early Progression",
       "summary": [
-        "A starter path that ties together the first tools, basic gathering loops, and the town services that keep a new account moving.",
-        "It stays close to Starter Town and North Road Camp so the first upgrades come from the same small map slice the export already centers."
+        "A starter path that ties together the first tools, the named NPC houses around Starter Town, and the basic gathering loops that keep a new account moving.",
+        "It stays close to Starter Town and North Road Camp so the first upgrades, Talk-to detours, and combat drops come from the same small map slice the export already centers."
       ],
       "audience": "new players",
       "difficulty": "beginner",
@@ -21,20 +21,25 @@
         "bronze_pickaxe",
         "fishing_rod",
         "small_net",
-        "bait"
+        "bait",
+        "bronze_sword",
+        "cooked_shrimp",
+        "normal_leather"
       ],
       "relatedSkillIds": [
         "woodcutting",
         "mining",
         "smithing",
         "fishing",
-        "crafting"
+        "crafting",
+        "cooking"
       ],
       "relatedWorldIds": [
         "starter_town",
         "north_road_camp"
       ],
       "nextJourneyIds": [
+        "hides_of_the_frontier",
         "bronze_gear",
         "fishing_to_food",
         "first_runes"
@@ -45,7 +50,7 @@
           "title": "Claim the basics",
           "body": [
             "Start in Starter Town by making sure you have the universal utility tools in hand: a knife for shaping wood, a tinderbox for firemaking, and a hammer for later smithing.",
-            "Those items are the simplest way to unlock the export's first resource loops without leaving the starter map."
+            "While you do that, treat the named NPC houses as onboarding anchors. Use Talk-to on the people around the starter loop so the first quest-style leads and service roles are easy to spot before you leave town."
           ],
           "itemIds": [
             "knife",
@@ -65,7 +70,7 @@
           "title": "Build the first gather tools",
           "body": [
             "Use early woodcutting and crafting materials to make the first handles, then turn them into practical tools.",
-            "Bronze and basic wood gear are the point where the codex export starts to feel like a loop instead of a shopping list."
+            "Do not separate combat too hard from this step. If rats, chickens, or goblins are sitting on the same route, fold their early drops into the same run so the export reads like one starter economy."
           ],
           "itemIds": [
             "logs",
@@ -88,8 +93,8 @@
           "stepId": "stabilize-the-loop",
           "title": "Stabilize the loop",
           "body": [
-            "Keep the first run going by pairing gathering with bronze smelting and simple fishing.",
-            "That leaves you with a safer route into the bronze gear, food, and rune journeys that follow."
+            "Keep the first run going by pairing gathering with bronze smelting, simple fishing, and enough cooked food to survive the outer pockets.",
+            "That makes it easier to branch into Tanner Rusk's leather-facing loop, the bronze gear route, and the first rune path without treating questing, merchants, and combat as unrelated systems."
           ],
           "itemIds": [
             "bronze_bar",
@@ -108,6 +113,109 @@
           "worldIds": [
             "starter_town",
             "north_road_camp"
+          ]
+        }
+      ]
+    },
+    {
+      "journeyId": "hides_of_the_frontier",
+      "title": "Hides Of The Frontier",
+      "summary": [
+        "A beginner journey built around Tanner Rusk, the named NPC houses, and the frontier combat pockets that turn Starter Town into more than a pure skilling hub.",
+        "The export currently shows Tanner through leather stock rather than a raw-hide tanning recipe, so the guide focuses on how early drops, food, Talk-to NPCs, and leather crafting still form one onboarding loop."
+      ],
+      "audience": "new players",
+      "difficulty": "beginner",
+      "relatedItemIds": [
+        "bronze_sword",
+        "cooked_shrimp",
+        "needle",
+        "thread",
+        "normal_leather",
+        "wolf_leather",
+        "boar_tusk",
+        "wolf_fang",
+        "raw_boar_meat",
+        "raw_wolf_meat"
+      ],
+      "relatedSkillIds": [
+        "crafting",
+        "smithing",
+        "fishing",
+        "cooking"
+      ],
+      "relatedWorldIds": [
+        "starter_town",
+        "north_road_camp"
+      ],
+      "nextJourneyIds": [
+        "bronze_gear",
+        "fishing_to_food",
+        "first_runes"
+      ],
+      "steps": [
+        {
+          "stepId": "read-the-town-through-npcs",
+          "title": "Read the town through NPCs",
+          "body": [
+            "Open with the named houses in Starter Town, especially Tanner Rusk. The updated onboarding makes more sense if you use Talk-to as the first discovery tool instead of treating every service as a silent shop counter.",
+            "That habit is what turns the starter map into a quest path: the NPC names tell you which loops matter, and Tanner is the clearest signpost for the leather-and-frontier side of town."
+          ],
+          "itemIds": [
+            "needle",
+            "thread",
+            "normal_leather"
+          ],
+          "skillIds": [
+            "crafting"
+          ],
+          "worldIds": [
+            "starter_town"
+          ]
+        },
+        {
+          "stepId": "work-the-frontier-loop",
+          "title": "Work the frontier loop",
+          "body": [
+            "Once you have a basic weapon and some cooked food, take short runs into the early combat pockets for goblins, boars, and wolves.",
+            "The important lesson is not raw efficiency. It is learning that early combat now feeds the same starter economy through meat, straightforward monster drops, and merchant-facing cleanup."
+          ],
+          "itemIds": [
+            "bronze_sword",
+            "cooked_shrimp",
+            "boar_tusk",
+            "wolf_fang",
+            "raw_boar_meat",
+            "raw_wolf_meat"
+          ],
+          "skillIds": [
+            "smithing",
+            "fishing",
+            "cooking"
+          ],
+          "worldIds": [
+            "starter_town",
+            "north_road_camp"
+          ]
+        },
+        {
+          "stepId": "bring-the-haul-back-to-tanner",
+          "title": "Bring the haul back to Tanner",
+          "body": [
+            "Bring the frontier haul back to Tanner Rusk and the crafting side of Starter Town. Even though the current export does not surface raw hide tanning as its own recipe chain, Tanner's leather stock makes the intended progression readable.",
+            "Use that moment to pivot into normal and wolf leather, then carry the loop forward into strapped handles, gear assembly, and the broader crafting economy."
+          ],
+          "itemIds": [
+            "normal_leather",
+            "wolf_leather",
+            "needle",
+            "thread"
+          ],
+          "skillIds": [
+            "crafting"
+          ],
+          "worldIds": [
+            "starter_town"
           ]
         }
       ]

@@ -1,6 +1,10 @@
 const path = require("path");
 
-const { DEFAULT_CODEX_BASE_PATH } = require("../lib/codex-link-contract");
+const {
+  DEFAULT_CODEX_BASE_PATH,
+  buildCodexEntityPath,
+  buildCodexJourneyPath
+} = require("../lib/codex-link-contract");
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 
@@ -30,6 +34,197 @@ function humanizeId(value) {
       return normalized.charAt(0).toUpperCase() + normalized.slice(1);
     })
     .join(" ");
+}
+
+function pluralizeWord(word) {
+  const text = String(word || "").trim();
+  if (!text) return "";
+  if (/fe$/i.test(text)) return text.replace(/fe$/i, "ves");
+  if (/f$/i.test(text)) return text.replace(/f$/i, "ves");
+  if (/[^aeiou]y$/i.test(text)) return text.replace(/y$/i, "ies");
+  if (/(s|x|z|ch|sh)$/i.test(text)) return `${text}es`;
+  return `${text}s`;
+}
+
+function pluralizeLabel(value) {
+  const words = String(value || "").trim().split(/\s+/g).filter(Boolean);
+  if (!words.length) return "";
+  const last = words.pop();
+  words.push(pluralizeWord(last));
+  return words.join(" ");
+}
+
+function toPossessiveLabel(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  return /s$/i.test(text) ? `${text}'` : `${text}'s`;
+}
+
+function buildLabelVariants(value) {
+  const base = String(value || "").trim();
+  if (!base) return [];
+
+  const variants = [base];
+  const plural = pluralizeLabel(base);
+  const possessive = toPossessiveLabel(base);
+  const pluralPossessive = plural ? toPossessiveLabel(plural) : "";
+
+  if (possessive && possessive.toLowerCase() !== base.toLowerCase()) variants.push(possessive);
+  if (plural && plural.toLowerCase() !== base.toLowerCase()) variants.push(plural);
+  if (
+    pluralPossessive
+    && pluralPossessive.toLowerCase() !== base.toLowerCase()
+    && pluralPossessive.toLowerCase() !== possessive.toLowerCase()
+  ) {
+    variants.push(pluralPossessive);
+  }
+
+  return Array.from(new Set(variants.filter(Boolean)));
+}
+
+function getJourneyRows(manualContent = {}) {
+  return manualContent && manualContent.journeys && Array.isArray(manualContent.journeys.journeys)
+    ? manualContent.journeys.journeys
+    : [];
+}
+
+function buildInlineLinkRegistry(bundle, manualContent = {}) {
+  const aliasRows = new Map();
+  const routeEntries = [];
+  const journeys = getJourneyRows(manualContent);
+
+  bundle.items.forEach((item) => {
+    routeEntries.push({
+      href: item.path,
+      label: item.title,
+      aliases: [item.title]
+    });
+  });
+  bundle.skills.forEach((skill) => {
+    routeEntries.push({
+      href: skill.path,
+      label: skill.title,
+      aliases: [skill.title]
+    });
+  });
+  bundle.worlds.forEach((world) => {
+    routeEntries.push({
+      href: world.path,
+      label: world.title,
+      aliases: [world.title]
+    });
+  });
+  bundle.enemies.forEach((enemy) => {
+    const enemyData = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+    const enemyAliases = [
+      enemy.title,
+      enemyData.displayName,
+      enemyData.attackProfile && enemyData.attackProfile.familyTag
+        ? humanizeId(enemyData.attackProfile.familyTag)
+        : ""
+    ].filter(Boolean);
+    routeEntries.push({
+      href: enemy.path,
+      label: enemy.title,
+      aliases: Array.from(new Set(enemyAliases))
+    });
+  });
+  journeys.forEach((journey) => {
+    routeEntries.push({
+      href: journey.path || buildCodexJourneyPath(journey.journeyId),
+      label: journey.title,
+      aliases: [journey.title]
+    });
+  });
+
+  routeEntries.forEach((entry) => {
+    const aliases = Array.from(new Set((Array.isArray(entry.aliases) ? entry.aliases : []).flatMap((alias) => buildLabelVariants(alias))));
+    aliases.forEach((alias) => {
+      const normalized = String(alias || "").trim().toLowerCase();
+      if (!normalized) return;
+      if (!aliasRows.has(normalized)) aliasRows.set(normalized, new Map());
+      aliasRows.get(normalized).set(entry.href, {
+        alias,
+        aliasLower: normalized,
+        href: entry.href,
+        label: entry.label
+      });
+    });
+  });
+
+  const byInitial = {};
+  aliasRows.forEach((rowMap, normalizedAlias) => {
+    if (rowMap.size !== 1) return;
+    const row = Array.from(rowMap.values())[0];
+    const initial = normalizedAlias.charAt(0);
+    if (!initial) return;
+    if (!byInitial[initial]) byInitial[initial] = [];
+    byInitial[initial].push(row);
+  });
+
+  Object.keys(byInitial).forEach((key) => {
+    byInitial[key].sort((left, right) => right.alias.length - left.alias.length || left.alias.localeCompare(right.alias));
+  });
+
+  return { byInitial };
+}
+
+function isInlineLinkBoundaryChar(value) {
+  return !/[A-Za-z0-9]/.test(String(value || ""));
+}
+
+function hasInlineLinkBoundaries(text, start, end) {
+  return (start === 0 || isInlineLinkBoundaryChar(text[start - 1]))
+    && (end === text.length || isInlineLinkBoundaryChar(text[end]));
+}
+
+function renderInlineLinkedText(value, options = {}) {
+  const text = String(value || "");
+  const linkRegistry = options && options.linkRegistry ? options.linkRegistry : null;
+  if (!text) return "";
+  if (!linkRegistry || !linkRegistry.byInitial) return escapeHtml(text);
+
+  const excluded = new Set(normalizeArray(options.excludeHrefs));
+  const linkedHrefs = new Set();
+  const lower = text.toLowerCase();
+  let cursor = 0;
+  let lastPlainTextIndex = 0;
+  let html = "";
+
+  while (cursor < text.length) {
+    const candidates = linkRegistry.byInitial[lower.charAt(cursor)] || [];
+    let match = null;
+
+    for (const candidate of candidates) {
+      const endIndex = cursor + candidate.alias.length;
+      if (excluded.has(candidate.href) || linkedHrefs.has(candidate.href)) continue;
+      if (!lower.startsWith(candidate.aliasLower, cursor)) continue;
+      if (!hasInlineLinkBoundaries(text, cursor, endIndex)) continue;
+      match = candidate;
+      break;
+    }
+
+    if (!match) {
+      cursor += 1;
+      continue;
+    }
+
+    html += escapeHtml(text.slice(lastPlainTextIndex, cursor));
+    html += `<a href="${escapeHtml(match.href)}">${escapeHtml(text.slice(cursor, cursor + match.alias.length))}</a>`;
+    linkedHrefs.add(match.href);
+    cursor += match.alias.length;
+    lastPlainTextIndex = cursor;
+  }
+
+  html += escapeHtml(text.slice(lastPlainTextIndex));
+  return html;
+}
+
+function renderInlineLinkedList(values, options = {}) {
+  const rows = normalizeArray(values).map((value) => String(value || "").trim()).filter(Boolean);
+  if (!rows.length) return escapeHtml(options.emptyText || "None");
+  const delimiter = options.delimiter || ", ";
+  return rows.map((row) => renderInlineLinkedText(row, options)).join(delimiter);
 }
 
 function buildMonogram(value, maxChars = 3) {
@@ -216,6 +411,7 @@ function renderTable(options) {
 
 module.exports = {
   DEFAULT_CODEX_BASE_PATH,
+  buildInlineLinkRegistry,
   buildMonogram,
   buildSectionPath,
   describeList,
@@ -229,6 +425,8 @@ module.exports = {
   humanizeId,
   renderChipList,
   renderEntityIcon,
+  renderInlineLinkedList,
+  renderInlineLinkedText,
   renderJsonDetails,
   renderLinkList,
   renderMetaList,

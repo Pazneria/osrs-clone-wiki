@@ -3,9 +3,9 @@ const { renderLayout } = require("./layout");
 const {
   buildSectionPath,
   escapeHtml,
+  renderInlineLinkedText,
   renderChipList,
   renderEntityIcon,
-  renderLinkList,
   renderSearchHeader,
   renderStatGrid
 } = require("./shared");
@@ -13,11 +13,10 @@ const {
   buildEntityLinkRows,
   renderGuideBlockSection,
   renderJourneyCard,
-  renderLinkedEntitySection,
   renderRichText
 } = require("./manual");
 
-function renderJourneyStep(step, bundle) {
+function renderJourneyStep(step, bundle, options = {}) {
   const linkedRows = buildEntityLinkRows(bundle, {
     itemIds: step.itemIds,
     skillIds: step.skillIds,
@@ -32,8 +31,13 @@ function renderJourneyStep(step, bundle) {
           <h4>${escapeHtml(step.title)}</h4>
         </div>
       </div>
-      ${renderRichText(step.body)}
-      ${linkedRows.length ? renderLinkList(linkedRows, { className: "manual-link-list" }) : ""}
+      ${renderRichText(step.body, options)}
+      ${linkedRows.length
+        ? `<p class="card-note">${renderInlineLinkedText(
+          `Keep ${linkedRows.map((row) => row.label).join(", ")} in view while you do this step.`,
+          options
+        )}</p>`
+        : ""}
     </article>
   `;
 }
@@ -69,13 +73,26 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
       blocks: [
         { label: "Summary", body: journey.summary },
         { label: "Outcome", body: [`This journey connects ${journey.relatedSkillIds.length} skills, ${journey.relatedWorldIds.length} worlds, and the items needed to make the loop feel concrete.`] }
-      ]
+      ],
+      linkRegistry: siteAssets.linkRegistry,
+      excludeHrefs: [journey.path]
     })}
-    ${renderLinkedEntitySection({
-      eyebrow: "Connected Systems",
-      title: "Pages to keep open while you follow it",
-      rows: linkedRows
-    })}
+    ${linkedRows.length ? `
+      <section class="section-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Route Context</p>
+            <h3>Pages that reinforce the journey while you follow it</h3>
+          </div>
+        </div>
+        <div class="prose">
+          <p>${renderInlineLinkedText(
+            `This route is best read alongside ${linkedRows.map((row) => row.label).join(", ")}.`,
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [journey.path] }
+          )}</p>
+        </div>
+      </section>
+    ` : ""}
     <section class="section-card">
       <div class="section-heading">
         <div>
@@ -84,7 +101,10 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
         </div>
       </div>
       <div class="page-stack page-stack--tight">
-        ${journey.steps.map((step) => renderJourneyStep(step, bundle)).join("")}
+        ${journey.steps.map((step) => renderJourneyStep(step, bundle, {
+          linkRegistry: siteAssets.linkRegistry,
+          excludeHrefs: [journey.path]
+        })).join("")}
       </div>
     </section>
     ${nextJourneys.length ? `
@@ -96,7 +116,11 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
           </div>
         </div>
         <div class="entity-grid">
-          ${nextJourneys.map((entry) => renderJourneyCard(entry, { monogram: "NX" })).join("")}
+          ${nextJourneys.map((entry) => renderJourneyCard(entry, {
+            monogram: "NX",
+            linkRegistry: siteAssets.linkRegistry,
+            excludeHrefs: [entry.path]
+          })).join("")}
         </div>
       </section>
     ` : ""}
@@ -111,7 +135,10 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
       pageTitle: journey.title,
       eyebrow: "Journey Manual",
       heroTitle: journey.title,
-      heroBody: renderRichText(journey.summary),
+      heroBody: renderRichText(journey.summary, {
+        linkRegistry: siteAssets.linkRegistry,
+        excludeHrefs: [journey.path]
+      }),
       heroBadges: [journey.audience, journey.difficulty, `${journey.steps.length} steps`],
       heroAside,
       body
@@ -121,7 +148,11 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
 
 function renderJourneyIndexPage(bundle, editorial, manualContent, siteAssets) {
   const journeys = manualContent.journeys.journeys;
-  const journeyCards = journeys.map((journey) => renderJourneyCard(journey, { monogram: "JR" })).join("");
+  const journeyCards = journeys.map((journey) => renderJourneyCard(journey, {
+    monogram: "JR",
+    linkRegistry: siteAssets.linkRegistry,
+    excludeHrefs: [journey.path]
+  })).join("");
 
   const heroAside = `
     <div class="hero-panel">

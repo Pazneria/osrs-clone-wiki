@@ -15,7 +15,21 @@ const ITEM_EDITORIAL_BATCHES = Object.freeze([
   { id: "utility_and_outliers", title: "Utility And Outliers" }
 ]);
 
-const UTILITY_ITEM_IDS = new Set(["hammer", "knife", "tinderbox", "coins", "ashes", "soft_clay", "feathers_bundle"]);
+const UTILITY_ITEM_IDS = new Set([
+  "hammer",
+  "knife",
+  "tinderbox",
+  "coins",
+  "ashes",
+  "soft_clay",
+  "feathers_bundle",
+  "rat_tail",
+  "goblin_club",
+  "boar_tusk",
+  "wolf_fang",
+  "guard_spear",
+  "guard_crest"
+]);
 const FISHING_ITEM_IDS = new Set(["bait", "small_net", "fishing_rod", "harpoon", "rune_harpoon"]);
 const RUNECRAFTING_ITEM_IDS = new Set(["rune_essence", "air_staff", "earth_staff", "water_staff", "fire_staff"]);
 const CRAFTING_ITEM_IDS = new Set(["bow_string", "needle", "thread", "chisel", "clay"]);
@@ -36,6 +50,54 @@ const TOOL_SKILL_HINTS = Object.freeze({
     skillId: "fishing",
     text: "Used to catch fish at Harpoon fishing methods."
   }
+});
+
+const SPECIAL_ITEM_EDITORIAL_SEEDS = Object.freeze({
+  boar_tusk: Object.freeze({
+    description: "A boar tusk kept as one of the first animal-specific trophy drops in the starter combat loop.",
+    acquisition: "Drops from boars in the outer fields of Starter Town and North Road Camp.",
+    uses: "No recipe or merchant path is exported for it, but it fits the same outer-field progression lane that feeds Tanner Rusk's tannery-side quest arc."
+  }),
+  goblin_club: Object.freeze({
+    description: "A rough goblin club recovered as low-tier camp loot rather than player-ready equipment.",
+    acquisition: "Drops from goblin grunts in Starter Town and North Road Camp.",
+    uses: "No recipe or shop path is exported for it, so it mainly marks the jump from critter drops into roaming goblin encounters."
+  }),
+  guard_crest: Object.freeze({
+    description: "A guard crest taken as a recognizable patrol drop with more identity than the starter animal trophies.",
+    acquisition: "Drops from guards in Starter Town and North Road Camp.",
+    uses: "No crafting or merchant path is exported for it, so it mainly serves as higher-tier patrol loot and named-faction flavor."
+  }),
+  guard_spear: Object.freeze({
+    description: "A guard spear recovered as loot rather than exported player equipment.",
+    acquisition: "Drops from guards in Starter Town and North Road Camp.",
+    uses: "No equipment, recipe, or merchant path is exported for it yet, so it currently reads as higher-tier guard loot with presentation value more than utility."
+  }),
+  rat_tail: Object.freeze({
+    description: "A rat tail kept as a disposable proof-of-kill drop from the very bottom of the combat ladder.",
+    acquisition: "Drops from rats in Starter Town and North Road Camp.",
+    uses: "No recipe or merchant path is exported for it, so it mainly serves as low-value starter loot and encounter flavor."
+  }),
+  raw_boar_meat: Object.freeze({
+    description: "A raw boar meat drop from the outer fields that sits on the combat side of the starter food economy.",
+    acquisition: "Drops from boars roaming the outer fields of Starter Town and North Road Camp.",
+    uses: "No direct cooking recipe is exported for it yet, but it clearly belongs to the same outer-field progression loop around Tanner Rusk and Hides of the Frontier."
+  }),
+  raw_chicken: Object.freeze({
+    description: "A raw chicken drop that functions as low-risk uncooked food stock in the Starter Town combat loop.",
+    acquisition: "Drops from chickens around Starter Town's safer training pockets.",
+    uses: "No direct cooking recipe is exported for it yet, so it mainly reads as beginner combat loot before players push into the harsher outer-field routes."
+  }),
+  raw_wolf_meat: Object.freeze({
+    description: "A raw wolf meat drop that marks the more dangerous end of the starter-region food-side combat loot.",
+    acquisition: "Drops from wolves in the outer reaches of Starter Town and North Road Camp.",
+    uses: "No direct cooking recipe is exported for it yet, but it reads as part of the same animal-hunting loop that surrounds Tanner Rusk's tannery plot and Hides of the Frontier."
+  }),
+  wolf_fang: Object.freeze({
+    description: "A wolf fang kept as a more dangerous animal trophy from the far-out starter-region encounter bands.",
+    acquisition: "Drops from wolves in the outer reaches of Starter Town and North Road Camp.",
+    uses: "No recipe or merchant path is exported for it, but it reads cleanly as part of the same outer-field pressure that frames Tanner Rusk's first quest and tannery progression."
+  })
 });
 
 function assert(condition, message) {
@@ -544,6 +606,9 @@ function buildTransformationIndex(bundle) {
 function buildItemDescriptionSeed(item) {
   const data = item.data || {};
   const type = data.type || "item";
+  const specialSeed = SPECIAL_ITEM_EDITORIAL_SEEDS[item.itemId];
+
+  if (specialSeed && specialSeed.description) return specialSeed.description;
 
   if (/^raw_/.test(item.itemId)) return `A raw fish resource that can be cooked into a food item.`;
   if (/^cooked_/.test(item.itemId)) return `A cooked fish food item that restores health when eaten.`;
@@ -596,6 +661,9 @@ function buildItemDescriptionSeed(item) {
 }
 
 function buildItemAcquisitionSeed(context) {
+  const specialSeed = SPECIAL_ITEM_EDITORIAL_SEEDS[context.itemId];
+  if (specialSeed && specialSeed.acquisition) return specialSeed.acquisition;
+
   const firstOutput = context.acquisition.recipeOutputs[0];
   if (firstOutput) {
     if (firstOutput.kind === "recipe_output") {
@@ -648,6 +716,9 @@ function buildItemAcquisitionSeed(context) {
 }
 
 function buildItemUsesSeed(context) {
+  const specialSeed = SPECIAL_ITEM_EDITORIAL_SEEDS[context.itemId];
+  if (specialSeed && specialSeed.uses) return specialSeed.uses;
+
   const firstRecipeUse = context.uses.recipeInputs[0];
   if (firstRecipeUse) {
     const outputs = dedupeRows(context.uses.recipeInputs, (row) => `${row.skillId}:${row.outputItemId || ""}`)

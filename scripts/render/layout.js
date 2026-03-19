@@ -26,6 +26,7 @@ function renderLayout(options) {
     { label: "Journeys", href: buildSectionPath("journeys"), active: currentPath.startsWith(buildSectionPath("journeys")) },
     { label: "Items", href: buildSectionPath("items"), active: currentPath.startsWith(buildSectionPath("items")) },
     { label: "Skills", href: buildSectionPath("skills"), active: currentPath.startsWith(buildSectionPath("skills")) },
+    { label: "Enemies", href: buildSectionPath("enemies"), active: currentPath.startsWith(buildSectionPath("enemies")) },
     { label: "Worlds", href: buildSectionPath("world"), active: currentPath.startsWith(buildSectionPath("world")) }
   ];
 

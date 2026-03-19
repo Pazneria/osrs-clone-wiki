@@ -11,7 +11,8 @@ const DEFAULT_FILENAMES = Object.freeze({
   manifest: "manifest.json",
   items: "items.json",
   skills: "skills.json",
-  worlds: "worlds.json"
+  worlds: "worlds.json",
+  enemies: "enemies.json"
 });
 
 function assert(condition, message) {
@@ -35,6 +36,46 @@ function createEntityIndex(rows, keyField) {
   }));
 }
 
+function collectEnemyDropItemIds(value, found = new Set()) {
+  if (!value) return found;
+  if (Array.isArray(value)) {
+    value.forEach((entry) => collectEnemyDropItemIds(entry, found));
+    return found;
+  }
+  if (typeof value !== "object") return found;
+
+  const directIds = [
+    value.itemId,
+    value.rewardItemId,
+    value.outputItemId,
+    value.dropItemId
+  ];
+  directIds.forEach((itemId) => {
+    const normalized = String(itemId || "").trim();
+    if (normalized) found.add(normalized);
+  });
+
+  [
+    "itemIds",
+    "dropTable",
+    "dropTables",
+    "drops",
+    "lootTable",
+    "lootTables",
+    "loot",
+    "dropGroups",
+    "entries",
+    "rolls",
+    "items"
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(value, key)) {
+      collectEnemyDropItemIds(value[key], found);
+    }
+  });
+
+  return found;
+}
+
 function loadCodexBundle(projectRoot, dataDir = getDefaultDataDir(projectRoot)) {
   const manifestPath = path.join(dataDir, DEFAULT_FILENAMES.manifest);
   assert(fs.existsSync(manifestPath), `Missing codex bundle manifest at ${manifestPath}`);
@@ -43,16 +84,19 @@ function loadCodexBundle(projectRoot, dataDir = getDefaultDataDir(projectRoot)) 
   const itemsPath = path.join(dataDir, filenames.items);
   const skillsPath = path.join(dataDir, filenames.skills);
   const worldsPath = path.join(dataDir, filenames.worlds);
+  const enemiesPath = path.join(dataDir, filenames.enemies);
 
   assert(fs.existsSync(itemsPath), `Missing codex bundle items at ${itemsPath}`);
   assert(fs.existsSync(skillsPath), `Missing codex bundle skills at ${skillsPath}`);
   assert(fs.existsSync(worldsPath), `Missing codex bundle worlds at ${worldsPath}`);
+  assert(fs.existsSync(enemiesPath), `Missing codex bundle enemies at ${enemiesPath}`);
 
   return {
     manifest,
     items: readJson(itemsPath),
     skills: readJson(skillsPath),
     worlds: readJson(worldsPath),
+    enemies: readJson(enemiesPath),
     dataDir
   };
 }
@@ -90,15 +134,22 @@ function validateCodexBundle(bundle) {
   assert(manifest.basePath === DEFAULT_CODEX_BASE_PATH, "codex manifest basePath mismatch");
 
   const expectedRoutes = getCodexRouteTemplates(DEFAULT_CODEX_BASE_PATH);
-  assert(JSON.stringify(manifest.routes || {}) === JSON.stringify(expectedRoutes), "codex route templates mismatch");
+  const manifestRoutes = manifest.routes && typeof manifest.routes === "object" ? manifest.routes : {};
+  assert(
+    Object.keys(manifestRoutes).length === Object.keys(expectedRoutes).length
+    && Object.keys(expectedRoutes).every((key) => manifestRoutes[key] === expectedRoutes[key]),
+    "codex route templates mismatch"
+  );
 
   const items = Array.isArray(bundle.items) ? bundle.items : [];
   const skills = Array.isArray(bundle.skills) ? bundle.skills : [];
   const worlds = Array.isArray(bundle.worlds) ? bundle.worlds : [];
+  const enemies = Array.isArray(bundle.enemies) ? bundle.enemies : [];
 
   validateEntityCollection(items, "itemId", "item", "item");
   validateEntityCollection(skills, "skillId", "skill", "skill");
   validateEntityCollection(worlds, "worldId", "world", "world");
+  validateEntityCollection(enemies, "enemyId", "enemy", "enemy");
 
   const itemIds = new Set(items.map((entry) => entry.itemId));
   const skillIds = new Set(skills.map((entry) => entry.skillId));
@@ -132,14 +183,41 @@ function validateCodexBundle(bundle) {
     });
   });
 
+  enemies.forEach((enemy) => {
+    const enemyData = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
+    const relatedItemIds = [
+      ...(Array.isArray(enemy.relatedItemIds) ? enemy.relatedItemIds : []),
+      ...(Array.isArray(enemyData.relatedItemIds) ? enemyData.relatedItemIds : []),
+      ...(Array.isArray(enemyData.lootItemIds) ? enemyData.lootItemIds : [])
+    ];
+    const relatedWorldIds = [
+      ...(Array.isArray(enemy.relatedWorldIds) ? enemy.relatedWorldIds : []),
+      ...(Array.isArray(enemyData.relatedWorldIds) ? enemyData.relatedWorldIds : []),
+      ...(Array.isArray(enemyData.spawnWorldIds) ? enemyData.spawnWorldIds : []),
+      ...(Array.isArray(enemyData.worldIds) ? enemyData.worldIds : [])
+    ];
+
+    relatedItemIds.forEach((itemId) => {
+      assert(itemIds.has(itemId), `enemy ${enemy.enemyId} links to unknown item ${itemId}`);
+    });
+    relatedWorldIds.forEach((worldId) => {
+      assert(worldIds.has(worldId), `enemy ${enemy.enemyId} links to unknown world ${worldId}`);
+    });
+    collectEnemyDropItemIds(enemy).forEach((itemId) => {
+      assert(itemIds.has(itemId), `enemy ${enemy.enemyId} drop table links to unknown item ${itemId}`);
+    });
+  });
+
   assert(manifest.counts && manifest.counts.items === items.length, "codex item count mismatch");
   assert(manifest.counts && manifest.counts.skills === skills.length, "codex skill count mismatch");
   assert(manifest.counts && manifest.counts.worlds === worlds.length, "codex world count mismatch");
+  assert(manifest.counts && manifest.counts.enemies === enemies.length, "codex enemy count mismatch");
 
   const indexes = manifest.indexes || {};
   assert(JSON.stringify(indexes.items || []) === JSON.stringify(createEntityIndex(items, "itemId")), "codex item index mismatch");
   assert(JSON.stringify(indexes.skills || []) === JSON.stringify(createEntityIndex(skills, "skillId")), "codex skill index mismatch");
   assert(JSON.stringify(indexes.worlds || []) === JSON.stringify(createEntityIndex(worlds, "worldId")), "codex world index mismatch");
+  assert(JSON.stringify(indexes.enemies || []) === JSON.stringify(createEntityIndex(enemies, "enemyId")), "codex enemy index mismatch");
 
   return bundle;
 }

@@ -9,8 +9,9 @@ const {
   humanizeId,
   renderChipList,
   renderEntityIcon,
+  renderInlineLinkedList,
+  renderInlineLinkedText,
   renderJsonDetails,
-  renderLinkList,
   renderMetaList,
   renderSearchHeader,
   renderStatGrid,
@@ -103,11 +104,11 @@ function resolveWorldIndexArgs(manualContentOrSiteAssets, maybeSiteAssets) {
     };
 }
 
-function renderParagraphCopy(paragraphs, emptyText) {
+function renderParagraphCopy(paragraphs, emptyText, options = {}) {
   const rows = normalizeParagraphs(paragraphs);
   if (!rows.length) return `<p class="subtle">${escapeHtml(emptyText || "No guidance yet.")}</p>`;
-  if (rows.length === 1) return `<p class="card-note">${escapeHtml(rows[0])}</p>`;
-  return `<ul class="guide-list">${rows.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`;
+  if (rows.length === 1) return `<p class="card-note">${renderInlineLinkedText(rows[0], options)}</p>`;
+  return `<ul class="guide-list">${rows.map((entry) => `<li>${renderInlineLinkedText(entry, options)}</li>`).join("")}</ul>`;
 }
 
 function buildWorldSummaryLine(world, manualWorld) {
@@ -167,11 +168,16 @@ function renderWorldCard(world, siteAssets, manualWorld) {
         <div class="entity-card__copy">
           <p class="eyebrow">${escapeHtml(world.worldId)}</p>
           <h3><a href="${escapeHtml(world.path)}">${escapeHtml(world.title)}</a></h3>
-          <p class="entity-card__lede">${escapeHtml(lede)}</p>
+          <p class="entity-card__lede">${renderInlineLinkedText(lede, { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] })}</p>
         </div>
       </div>
       ${renderChipList(badges, { className: "pill-list pill-list--dense", emptyText: "No region highlights." })}
-      ${renderChipList(world.relatedSkillIds.map(humanizeId), { className: "pill-list pill-list--dense", emptyText: "No linked skill groups." })}
+      ${world.relatedSkillIds.length
+        ? `<p class="card-note">${renderInlineLinkedText(
+          `Skill anchors: ${describeList(world.relatedSkillIds.map((skillId) => humanizeId(skillId)))}.`,
+          { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] }
+        )}</p>`
+        : `<p class="subtle">No linked skill groups.</p>`}
     </article>
   `;
 }
@@ -216,16 +222,28 @@ function renderTravelSection(world, worldIndex) {
           <h3>Fast links to connected regions</h3>
         </div>
       </div>
-      ${renderLinkList(world.travelLinks.map((link) => ({
-        href: buildCodexEntityPath("world", link.targetWorldId),
-        label: `${link.serviceId} -> ${((worldIndex.get(link.targetWorldId) || {}).title || humanizeId(link.targetWorldId))}`,
-        meta: `Target ${link.targetWorldId}`
-      })), { emptyText: "No travel services exported." })}
+      ${renderTable({
+        columns: [
+          { label: "Service", render: (row) => escapeHtml(row.serviceId) },
+          {
+            label: "Destination",
+            render: (row) => `<a class="table-link" href="${escapeHtml(row.href)}">${escapeHtml(row.label)}</a>`
+          },
+          { label: "Target world", render: (row) => escapeHtml(row.targetWorldId) }
+        ],
+        rows: world.travelLinks.map((link) => ({
+          serviceId: link.serviceId,
+          href: buildCodexEntityPath("world", link.targetWorldId),
+          label: ((worldIndex.get(link.targetWorldId) || {}).title || humanizeId(link.targetWorldId)),
+          targetWorldId: link.targetWorldId
+        })),
+        emptyText: "No travel services exported."
+      })}
     </section>
   `;
 }
 
-function renderResourceSection(world) {
+function renderResourceSection(world, linkRegistry) {
   const rows = summarizeResourceGroups(world);
   return `
     <section class="section-card">
@@ -239,7 +257,7 @@ function renderResourceSection(world) {
         columns: [
           { label: "Skill", render: (row) => escapeHtml(humanizeId(row.skillId)) },
           { label: "Nodes", render: (row) => escapeHtml(formatNumber(row.totalNodes)) },
-          { label: "Resources", render: (row) => escapeHtml(row.resourceLabels.join(", ")) },
+          { label: "Resources", render: (row) => renderInlineLinkedText(row.resourceLabels.join(", "), { linkRegistry }) },
           { label: "Route clusters", render: (row) => escapeHtml(row.routeIds.join(", ") || "None") }
         ],
         rows,
@@ -314,7 +332,7 @@ function renderLandmarkSection(world) {
   `;
 }
 
-function renderManualBriefSection(manualWorld) {
+function renderManualBriefSection(manualWorld, options = {}) {
   const hasBrief = manualWorld && (
     normalizeParagraphs(manualWorld.overview).length ||
     normalizeParagraphs(manualWorld.howToGetStarted).length ||
@@ -334,26 +352,26 @@ function renderManualBriefSection(manualWorld) {
       <div class="manual-grid">
         <article class="section-card section-card--nested manual-card">
           <p class="eyebrow">What to do here</p>
-          ${renderParagraphCopy(manualWorld.overview, "No overview yet.")}
+          ${renderParagraphCopy(manualWorld.overview, "No overview yet.", options)}
         </article>
         <article class="section-card section-card--nested manual-card">
           <p class="eyebrow">How to get started</p>
-          ${renderParagraphCopy(manualWorld.howToGetStarted, "No starter guidance yet.")}
+          ${renderParagraphCopy(manualWorld.howToGetStarted, "No starter guidance yet.", options)}
         </article>
         <article class="section-card section-card--nested manual-card">
           <p class="eyebrow">Why it matters</p>
-          ${renderParagraphCopy(manualWorld.whyItMatters, "No impact notes yet.")}
+          ${renderParagraphCopy(manualWorld.whyItMatters, "No impact notes yet.", options)}
         </article>
         <article class="section-card section-card--nested manual-card">
           <p class="eyebrow">Next steps</p>
-          ${renderParagraphCopy(manualWorld.nextSteps, "No next steps yet.")}
+          ${renderParagraphCopy(manualWorld.nextSteps, "No next steps yet.", options)}
         </article>
       </div>
     </section>
   `;
 }
 
-function renderFeaturedLoopsSection(world, manualWorld, bundle) {
+function renderFeaturedLoopsSection(world, manualWorld, bundle, linkRegistry) {
   const itemIndex = new Map(bundle.items.map((item) => [item.itemId, item]));
   const skillIndex = new Map(bundle.skills.map((skill) => [skill.skillId, skill]));
   const worldIndex = new Map(bundle.worlds.map((entry) => [entry.worldId, entry]));
@@ -394,23 +412,21 @@ function renderFeaturedLoopsSection(world, manualWorld, bundle) {
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Featured Loops</p>
-          <h3>Shortest ways to play this region</h3>
+          <p class="eyebrow">Play Patterns</p>
+          <h3>Shortest ways to read this region in context</h3>
         </div>
       </div>
-      <div class="manual-grid">
-        ${sections.map((section) => `
-          <article class="section-card section-card--nested manual-card">
-            <p class="eyebrow">${escapeHtml(section.label)}</p>
-            ${renderLinkList(section.ids.map(section.render), { emptyText: `No ${section.label.toLowerCase()} yet.` })}
-          </article>
-        `).join("")}
+      <div class="prose">
+        ${sections.map((section) => {
+          const labels = section.ids.map((id) => section.render(id).label);
+          return `<p>${renderInlineLinkedText(`${section.label}: ${describeList(labels)}.`, { linkRegistry, excludeHrefs: [world.path] })}</p>`;
+        }).join("")}
       </div>
     </section>
   `;
 }
 
-function renderConnectedSystemsSection(world, manualWorld) {
+function renderConnectedSystemsSection(world, manualWorld, options = {}) {
   const connectedSystems = manualWorld ? normalizeParagraphs(manualWorld.connectedSystems) : [];
   const statRows = [
     { label: "Services", value: world.serviceCount },
@@ -430,7 +446,7 @@ function renderConnectedSystemsSection(world, manualWorld) {
       <div class="split-grid">
         <article class="section-card section-card--nested">
           <p class="eyebrow">System notes</p>
-          ${renderParagraphCopy(connectedSystems, "No connected systems yet.")}
+          ${renderParagraphCopy(connectedSystems, "No connected systems yet.", options)}
         </article>
         <article class="section-card section-card--nested">
           <p class="eyebrow">Signals</p>
@@ -441,7 +457,7 @@ function renderConnectedSystemsSection(world, manualWorld) {
   `;
 }
 
-function renderJourneySection(world, manualWorld, manualContent) {
+function renderJourneySection(world, manualWorld, manualContent, linkRegistry) {
   const { journeys, journeysById } = getManualJourneyCollection(manualContent);
   const journeyIds = new Set();
 
@@ -472,11 +488,16 @@ function renderJourneySection(world, manualWorld, manualContent) {
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Journey Links</p>
-          <h3>Guided paths that include this world</h3>
+          <p class="eyebrow">Guided Routes</p>
+          <h3>Journeys that pass through this world</h3>
         </div>
       </div>
-      ${renderLinkList(rows, { emptyText: "No linked journeys yet." })}
+      <div class="prose">
+        <p>${renderInlineLinkedText(
+          `Guided routes that include this world: ${rows.map((row) => row.label).join(", ")}.`,
+          { linkRegistry, excludeHrefs: [world.path] }
+        )}</p>
+      </div>
     </section>
   `;
 }
@@ -520,14 +541,14 @@ function renderWorldPage(bundle, editorial, manualContentOrWorld, worldOrSiteAss
   `;
 
   const manualHeroText = manualWorld && Array.isArray(manualWorld.overview) && manualWorld.overview.length
-    ? `${manualWorld.overview[0]} This page then moves into featured loops, connected systems, and journey links before the raw export tables.`
+    ? `${manualWorld.overview[0]} This page then moves through the manual briefing, play patterns, connected systems, guided routes, and the raw export tables.`
     : `Use this page to scan ${world.title}'s services, travel options, resource coverage, and route anchors before dropping into the raw region export.`;
 
   const body = `
-    ${renderManualBriefSection(manualWorld)}
-    ${renderFeaturedLoopsSection(world, manualWorld, bundle)}
-    ${renderConnectedSystemsSection(world, manualWorld)}
-    ${renderJourneySection(world, manualWorld, manualContent)}
+    ${renderManualBriefSection(manualWorld, { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] })}
+    ${renderFeaturedLoopsSection(world, manualWorld, bundle, siteAssets.linkRegistry)}
+    ${renderConnectedSystemsSection(world, manualWorld, { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] })}
+    ${renderJourneySection(world, manualWorld, manualContent, siteAssets.linkRegistry)}
     <section class="section-card">
       <div class="section-heading">
         <div>
@@ -540,25 +561,33 @@ function renderWorldPage(bundle, editorial, manualContentOrWorld, worldOrSiteAss
         { label: "Manifest version", value: world.manifestVersion },
         { label: "Region file", value: world.regionFile },
         { label: "Default spawn", value: formatCoordinates(world.defaultSpawn) },
-        { label: "Related skills", value: describeList(world.relatedSkillIds.map(humanizeId)) }
+        {
+          label: "Related skills",
+          html: renderInlineLinkedList(
+            world.relatedSkillIds.map((skillId) => (skillIndex.get(skillId) || {}).title || skillId),
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path], emptyText: "None" }
+          )
+        }
       ])}
     </section>
     ${renderServiceSection(world)}
     ${renderTravelSection(world, worldIndex)}
-    ${renderResourceSection(world)}
+    ${renderResourceSection(world, siteAssets.linkRegistry)}
     ${renderRouteSection(world)}
     ${renderLandmarkSection(world)}
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Cross-Links</p>
+          <p class="eyebrow">Skill Coverage</p>
           <h3>Skill pages connected to this region</h3>
         </div>
       </div>
-      ${renderLinkList(world.relatedSkillIds.map((skillId) => ({
-        href: buildCodexEntityPath("skill", skillId),
-        label: (skillIndex.get(skillId) || {}).title || skillId
-      })), { emptyText: "No related skill pages." })}
+      <div class="prose">
+        <p>${renderInlineLinkedText(
+          `Open ${describeList(world.relatedSkillIds.map((skillId) => (skillIndex.get(skillId) || {}).title || skillId))} to read the skill-side loops that depend on this region.`,
+          { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] }
+        )}</p>
+      </div>
     </section>
     <section class="section-card">
       ${renderJsonDetails("Raw exported world data", world.data)}
@@ -574,7 +603,7 @@ function renderWorldPage(bundle, editorial, manualContentOrWorld, worldOrSiteAss
       pageTitle: world.title,
       eyebrow: "World Reference",
       heroTitle: world.title,
-      heroBody: `<p>${escapeHtml(manualHeroText)}</p>`,
+      heroBody: `<p>${renderInlineLinkedText(manualHeroText, { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] })}</p>`,
       heroBadges: [
         `${world.serviceCount} services`,
         `${world.routeCount} route anchors`,
@@ -640,7 +669,7 @@ function renderWorldIndexPage(bundle, editorial, manualContentOrSiteAssets, mayb
       pageTitle: "Worlds",
       eyebrow: "Entity Index",
       heroTitle: "Worlds",
-      heroBody: "<p>Browse region pages that open with what to do here, featured loops, connected systems, and journey links before the raw world export.</p>",
+      heroBody: "<p>Browse region pages that open with a manual briefing, play patterns, connected systems, and guided routes before the raw world export.</p>",
       heroBadges: ["Manual-first reading", "Linked journeys", "Travel-aware"],
       heroAside,
       body

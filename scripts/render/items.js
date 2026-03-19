@@ -1,8 +1,7 @@
 const { buildCodexEntityPath } = require("../lib/codex-link-contract");
 const { renderLayout } = require("./layout");
 const {
-  renderGuideBlockSection,
-  renderLinkedEntitySection
+  renderGuideBlockSection
 } = require("./manual");
 const {
   buildSectionPath,
@@ -15,8 +14,9 @@ const {
   humanizeId,
   renderChipList,
   renderEntityIcon,
+  renderInlineLinkedList,
+  renderInlineLinkedText,
   renderJsonDetails,
-  renderLinkList,
   renderMetaList,
   renderSearchHeader,
   renderStatGrid,
@@ -208,36 +208,28 @@ function renderToolSection(item) {
   `;
 }
 
-function renderCookingSection(bundle, item, itemIndex) {
+function renderCookingSection(bundle, item, itemIndex, options = {}) {
   const data = item.data || {};
   const sourceItems = bundle.items.filter((entry) => entry.data && (entry.data.cookResultId === item.itemId || entry.data.burnResultId === item.itemId));
   const hasCookingData = data.cookResultId || data.burnResultId || data.healAmount !== undefined || sourceItems.length;
   if (!hasCookingData) return "";
 
-  const relatedRows = [];
+  const relatedLabels = [];
   if (data.cookResultId) {
     const cooked = itemIndex.get(data.cookResultId);
-    relatedRows.push({
-      href: buildCodexEntityPath("item", data.cookResultId),
-      label: cooked ? cooked.title : humanizeId(data.cookResultId),
-      meta: "Cook result"
-    });
+    relatedLabels.push(cooked ? cooked.title : humanizeId(data.cookResultId));
   }
   if (data.burnResultId) {
     const burnt = itemIndex.get(data.burnResultId);
-    relatedRows.push({
-      href: buildCodexEntityPath("item", data.burnResultId),
-      label: burnt ? burnt.title : humanizeId(data.burnResultId),
-      meta: "Burn result"
-    });
+    relatedLabels.push(burnt ? burnt.title : humanizeId(data.burnResultId));
   }
   sourceItems.forEach((source) => {
-    relatedRows.push({
-      href: buildCodexEntityPath("item", source.itemId),
-      label: source.title,
-      meta: "Raw source"
-    });
+    relatedLabels.push(source.title);
   });
+
+  const chainParagraph = relatedLabels.length
+    ? `<p class="card-note">${renderInlineLinkedText(`This cooking chain runs through ${describeList(relatedLabels)}.`, options)}</p>`
+    : `<p class="subtle">No cooking-linked items.</p>`;
 
   return `
     <section class="section-card">
@@ -252,7 +244,7 @@ function renderCookingSection(bundle, item, itemIndex) {
         { label: "Eat delay", value: data.eatDelayTicks !== undefined ? formatTicks(data.eatDelayTicks) : "None" },
         { label: "Burn chance", value: data.burnChance !== undefined ? formatPercent(data.burnChance) : "None" }
       ], { emptyText: "No cooking metadata exported." })}
-      ${renderLinkList(relatedRows, { emptyText: "No cooking-linked items." })}
+      ${chainParagraph}
     </section>
   `;
 }
@@ -303,28 +295,24 @@ function buildItemGuideBlocks(bundle, item, entry, manualContent) {
     },
     {
       label: "Next Steps",
-      body: nextSteps.length ? nextSteps : ["Use the connected skill and world links below to see where this item leads next."]
+      body: nextSteps.length ? nextSteps : ["Use the connected skill, world, and journey references in this guide to see where the item leads next."]
     }
   ];
 }
 
-function renderEditorialSection(bundle, item, itemEditorial, manualContent) {
+function renderEditorialSection(bundle, item, itemEditorial, manualContent, siteAssets) {
   const entry = itemEditorial && itemEditorial.entriesByItemId ? itemEditorial.entriesByItemId[item.itemId] : null;
   if (!entry) return "";
 
-  const journeyLinks = collectItemJourneyLinks(manualContent, item);
   return `
     ${renderGuideBlockSection({
       eyebrow: "Living Manual",
       title: "What this item is for and where it leads",
       badges: [entry.status === "reviewed" ? "Reviewed guide copy" : "Draft guide copy"],
-      blocks: buildItemGuideBlocks(bundle, item, entry, manualContent)
+      blocks: buildItemGuideBlocks(bundle, item, entry, manualContent),
+      linkRegistry: siteAssets.linkRegistry,
+      excludeHrefs: [item.path]
     })}
-    ${journeyLinks.length ? renderLinkedEntitySection({
-      eyebrow: "Guided Paths",
-      title: "Journeys that make this item click",
-      rows: journeyLinks
-    }) : ""}
   `;
 }
 
@@ -361,7 +349,7 @@ function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, s
   `;
 
   const body = `
-    ${renderEditorialSection(bundle, item, itemEditorial, manualContent)}
+    ${renderEditorialSection(bundle, item, itemEditorial, manualContent, siteAssets)}
     <section class="section-card">
       <div class="section-heading">
         <div>
@@ -381,35 +369,51 @@ function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, s
     </section>
     ${renderCombatSection(item)}
     ${renderToolSection(item)}
-    ${renderCookingSection(bundle, item, itemIndex)}
+    ${renderCookingSection(bundle, item, itemIndex, {
+      linkRegistry: siteAssets.linkRegistry,
+      excludeHrefs: [item.path]
+    })}
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Cross-Links</p>
-          <h3>Where this item shows up</h3>
+          <p class="eyebrow">Reference Context</p>
+          <h3>Where this item fits in the larger codex</h3>
         </div>
       </div>
       ${renderMetaList([
-        { label: "Referenced skills", value: item.relatedSkillIds.length },
-        { label: "Referenced worlds", value: item.relatedWorldIds.length },
+        {
+          label: "Referenced skills",
+          html: renderInlineLinkedList(
+            item.relatedSkillIds.map((skillId) => (skillIndex.get(skillId) || {}).title || skillId),
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path], emptyText: "None" }
+          )
+        },
+        {
+          label: "Referenced worlds",
+          html: renderInlineLinkedList(
+            item.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path], emptyText: "None" }
+          )
+        },
+        {
+          label: "Guided journeys",
+          html: renderInlineLinkedList(
+            collectItemJourneyLinks(manualContent, item).map((journey) => journey.label),
+            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path], emptyText: "None" }
+          )
+        },
         { label: "Icon asset", value: getItemIconAssetId(item) || "None" }
-      ])}
-      <div class="split-grid">
-        <article class="section-card section-card--nested">
-          <h4>Related Skills</h4>
-          ${renderLinkList(item.relatedSkillIds.map((skillId) => ({
-            href: buildCodexEntityPath("skill", skillId),
-            label: (skillIndex.get(skillId) || {}).title || skillId
-          })), { emptyText: "No skill references yet." })}
-        </article>
-        <article class="section-card section-card--nested">
-          <h4>Related Worlds</h4>
-          ${renderLinkList(item.relatedWorldIds.map((worldId) => ({
-            href: buildCodexEntityPath("world", worldId),
-            label: (worldIndex.get(worldId) || {}).title || worldId
-          })), { emptyText: "No world references yet." })}
-        </article>
-      </div>
+      ], { emptyText: "No cross-reference metadata." })}
+      <p class="card-note">${renderInlineLinkedText(
+        `Read this item alongside ${describeList(
+          [
+            ...item.relatedSkillIds.map((skillId) => (skillIndex.get(skillId) || {}).title || skillId),
+            ...item.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
+            ...collectItemJourneyLinks(manualContent, item).map((journey) => journey.label)
+          ].filter(Boolean).slice(0, 8)
+        )}.`,
+        { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path] }
+      )}</p>
     </section>
     <section class="section-card">
       ${renderJsonDetails("Raw exported item data", item.data)}

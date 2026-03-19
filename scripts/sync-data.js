@@ -35,7 +35,7 @@ function rewriteLegacyCodexPaths(value) {
 }
 
 function normalizeLegacyBundle(outDir) {
-  const jsonFiles = ["manifest.json", "items.json", "skills.json", "worlds.json"];
+  const jsonFiles = ["manifest.json", "items.json", "skills.json", "worlds.json", "enemies.json"];
   for (const filename of jsonFiles) {
     const absPath = path.join(outDir, filename);
     if (!fs.existsSync(absPath)) continue;

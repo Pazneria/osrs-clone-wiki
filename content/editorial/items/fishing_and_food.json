@@ -81,6 +81,18 @@
       "uses": "It is used for harpoon fishing methods and can be equipped for combat.",
       "status": "draft"
     },
+    "raw_boar_meat": {
+      "description": "A raw boar meat drop from the outer fields that sits on the combat side of the starter food economy.",
+      "acquisition": "It drops from Boars roaming the outer fields of Starter Town and North Road Camp.",
+      "uses": "No direct cooking recipe is exported for it yet, but it clearly belongs to the same outer-field progression loop around Tanner Rusk and Hides of the Frontier.",
+      "status": "draft"
+    },
+    "raw_chicken": {
+      "description": "A raw chicken drop that functions as low-risk uncooked food stock in the Starter Town combat loop.",
+      "acquisition": "It drops from Chickens around Starter Town's safer training pockets.",
+      "uses": "No direct cooking recipe is exported for it yet, so it mainly reads as beginner combat loot before players push into the harsher outer-field routes.",
+      "status": "draft"
+    },
     "raw_salmon": {
       "description": "A raw fish resource gathered through Fishing and used in Cooking.",
       "acquisition": "It is usually gathered at Shallow Water with a Fishing Rod starting at level 20.",
@@ -109,6 +121,12 @@
       "description": "A raw fish resource gathered through Fishing and used in Cooking.",
       "acquisition": "It is usually gathered at Deep Water or Shallow Water with a Harpoon-class tool starting at level 30.",
       "uses": "It is a Cooking input for Cooked Tuna and can be traded to the Fishing Supplier in Starter Town.",
+      "status": "draft"
+    },
+    "raw_wolf_meat": {
+      "description": "A raw wolf meat drop that marks the more dangerous end of the starter-region food-side combat loot.",
+      "acquisition": "It drops from Wolves in the outer reaches of Starter Town and North Road Camp.",
+      "uses": "No direct cooking recipe is exported for it yet, but it reads as part of the same animal-hunting loop that surrounds Tanner Rusk's tannery plot and Hides of the Frontier.",
       "status": "draft"
     },
     "rune_harpoon": {

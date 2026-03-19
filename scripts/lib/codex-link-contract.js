@@ -4,7 +4,8 @@ const JOURNEY_SEGMENT = "journeys";
 const ENTITY_SEGMENTS = Object.freeze({
   item: "items",
   skill: "skills",
-  world: "world"
+  world: "world",
+  enemy: "enemies"
 });
 
 function assert(condition, message) {
@@ -25,6 +26,7 @@ function normalizeCodexEntityType(entityType) {
   if (normalized === "item" || normalized === "items") return "item";
   if (normalized === "skill" || normalized === "skills") return "skill";
   if (normalized === "world" || normalized === "worlds") return "world";
+  if (normalized === "enemy" || normalized === "enemies") return "enemy";
   throw new Error(`Unsupported codex entity type: ${entityType}`);
 }
 
@@ -76,7 +78,8 @@ function getCodexRouteTemplates(basePath = DEFAULT_CODEX_BASE_PATH) {
     home: normalizedBasePath,
     item: `${normalizedBasePath}${ENTITY_SEGMENTS.item}/:itemId`,
     skill: `${normalizedBasePath}${ENTITY_SEGMENTS.skill}/:skillId`,
-    world: `${normalizedBasePath}${ENTITY_SEGMENTS.world}/:worldId`
+    world: `${normalizedBasePath}${ENTITY_SEGMENTS.world}/:worldId`,
+    enemy: `${normalizedBasePath}${ENTITY_SEGMENTS.enemy}/:enemyId`
   };
 }
 

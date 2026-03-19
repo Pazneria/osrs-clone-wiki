@@ -1,24 +1,32 @@
 {
   "siteTitle": "OSRS Clone Codex",
   "brandKicker": "Pazneria Reference Hub",
-  "tagline": "Player-first reference pages for the items, skills, and worlds that shape the Pazneria sandbox.",
-  "footerNote": "Reference-first today, with room for future guides and lore once the export-backed core is fully polished.",
+  "tagline": "Player-first reference pages for the live Pazneria build: encounters, named NPC Talk-to dialogue, starter-town homesteads, the first quest, and the systems around them.",
+  "footerNote": "Reference-first today, with room for deeper quest breakdowns, lore, and encounter walkthroughs once the export-backed core is fully polished.",
   "intro": [
-    "The codex is designed to answer practical player questions quickly: what an item does, how a skill loop works, and what a region actually offers.",
-    "It stays grounded in the canonical game export bundle so stable IDs, values, routes, services, and cross-links remain aligned with the source project."
+    "The codex is designed to answer practical player questions quickly: what an item does, how a skill loop works, what an encounter drops, which NPCs can actually be talked to, and what a region offers right now.",
+    "It stays grounded in the canonical game export bundle so stable IDs, dialogue hooks, appearance IDs, routes, services, encounter data, and cross-links remain aligned with the source project."
   ],
   "homeSections": [
     {
-      "title": "Readable First",
-      "body": "Guided summaries lead each page, while raw export data stays available underneath for deeper reference."
+      "title": "Encounter Pages",
+      "body": "Enemy pages now read like live encounter references, with danger level, drops, roaming, and respawn details surfaced in the same codex voice as the rest of the site."
+    },
+    {
+      "title": "Talk-to Dialogue",
+      "body": "Named NPC coverage now reflects the live Talk-to layer, so dialogue-backed services read as characters with interactions instead of silent utility markers."
+    },
+    {
+      "title": "Starter-Town Homesteads",
+      "body": "Starter Town is no longer just a service checklist. The codex now needs to read it as a settlement with homes, yards, workshops, and profession plots around named NPCs."
+    },
+    {
+      "title": "First Live Quest",
+      "body": "The home portal should make it obvious that the project has crossed into quest territory, with the first live quest standing alongside training loops and reference pages."
     },
     {
       "title": "Linked Systems",
-      "body": "Items, skills, and worlds cross-link through stable IDs so the codex can act as a dependable project-wide reference layer."
-    },
-    {
-      "title": "Ready to Grow",
-      "body": "The v1 shell stays reference-focused now, but leaves clear visual space for future editorial pages, guides, and worldbuilding."
+      "body": "Items, skills, worlds, enemies, dialogue hooks, and quest-facing pages cross-link through stable IDs so the codex stays dependable as the project grows."
     }
   ]
 }
