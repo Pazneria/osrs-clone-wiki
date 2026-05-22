@@ -9,6 +9,18 @@
       "uses": "It is consumed by rod-based fishing methods and can be traded to the Fishing Supplier in Starter Town.",
       "status": "draft"
     },
+    "burnt_boar_meat": {
+      "description": "A burnt cut of boar meat left over from a failed Cooking attempt.",
+      "acquisition": "It is created when Raw Boar Meat burns during Cooking.",
+      "uses": "It has no strong exported use beyond showing the failure side of the boar-meat cooking loop.",
+      "status": "draft"
+    },
+    "burnt_chicken": {
+      "description": "A burnt chicken portion left over from a failed Cooking attempt.",
+      "acquisition": "It is created when Raw Chicken burns during Cooking.",
+      "uses": "It has no strong exported use beyond showing the failure side of the beginner chicken-food loop.",
+      "status": "draft"
+    },
     "burnt_salmon": {
       "description": "A burnt version of Raw Salmon created by a failed Cooking attempt.",
       "acquisition": "It is created when Raw Salmon burns during Cooking.",
@@ -37,6 +49,24 @@
       "description": "A burnt version of Raw Tuna created by a failed Cooking attempt.",
       "acquisition": "It is created when Raw Tuna burns during Cooking.",
       "uses": "It has no gameplay use beyond being traded to the Fishing Supplier in Starter Town.",
+      "status": "draft"
+    },
+    "burnt_wolf_meat": {
+      "description": "A burnt cut of wolf meat left over from a failed Cooking attempt.",
+      "acquisition": "It is created when Raw Wolf Meat burns during Cooking.",
+      "uses": "It has no strong exported use beyond showing the failure side of the riskier wolf-meat cooking loop.",
+      "status": "draft"
+    },
+    "cooked_boar_meat": {
+      "description": "A cooked cut of boar meat that restores 6 HP when eaten.",
+      "acquisition": "It is usually made by Cooking Raw Boar Meat starting at level 15.",
+      "uses": "It restores HP when eaten and extends the combat-side food economy beyond fish alone.",
+      "status": "draft"
+    },
+    "cooked_chicken": {
+      "description": "A cooked chicken portion that restores 4 HP when eaten.",
+      "acquisition": "It is usually made by Cooking Raw Chicken starting at level 5.",
+      "uses": "It restores HP when eaten and gives the safer chicken loop a clean food payoff.",
       "status": "draft"
     },
     "cooked_salmon": {
@@ -69,6 +99,12 @@
       "uses": "It restores HP when eaten and can be traded to the Fishing Supplier in Starter Town.",
       "status": "draft"
     },
+    "cooked_wolf_meat": {
+      "description": "A cooked cut of wolf meat that restores 8 HP when eaten.",
+      "acquisition": "It is usually made by Cooking Raw Wolf Meat starting at level 25.",
+      "uses": "It restores HP when eaten and gives the riskier outer-field hunting loop a stronger food reward.",
+      "status": "draft"
+    },
     "fishing_rod": {
       "description": "A fishing tool used for rod fishing methods.",
       "acquisition": "It is usually bought from the Fishing Supplier in Starter Town.",
@@ -83,7 +119,7 @@
     },
     "raw_boar_meat": {
       "description": "A raw boar meat drop from the outer fields that sits on the combat side of the starter food economy.",
-      "acquisition": "It drops from Boars roaming the outer fields of Starter Town and North Road Camp.",
+      "acquisition": "It drops from Boars roaming the outer fields of Starter Town.",
       "uses": "No direct cooking recipe is exported for it yet, but it clearly belongs to the same outer-field progression loop around Tanner Rusk and Hides of the Frontier.",
       "status": "draft"
     },
@@ -125,7 +161,7 @@
     },
     "raw_wolf_meat": {
       "description": "A raw wolf meat drop that marks the more dangerous end of the starter-region food-side combat loot.",
-      "acquisition": "It drops from Wolves in the outer reaches of Starter Town and North Road Camp.",
+      "acquisition": "It drops from Wolves in the outer reaches of Starter Town.",
       "uses": "No direct cooking recipe is exported for it yet, but it reads as part of the same animal-hunting loop that surrounds Tanner Rusk's tannery plot and Hides of the Frontier.",
       "status": "draft"
     },

@@ -88,14 +88,13 @@ function loadCodexBundle(projectRoot, dataDir = getDefaultDataDir(projectRoot)) 
 
   assert(fs.existsSync(itemsPath), `Missing codex bundle items at ${itemsPath}`);
   assert(fs.existsSync(skillsPath), `Missing codex bundle skills at ${skillsPath}`);
-  assert(fs.existsSync(worldsPath), `Missing codex bundle worlds at ${worldsPath}`);
   assert(fs.existsSync(enemiesPath), `Missing codex bundle enemies at ${enemiesPath}`);
 
   return {
     manifest,
     items: readJson(itemsPath),
     skills: readJson(skillsPath),
-    worlds: readJson(worldsPath),
+    worlds: fs.existsSync(worldsPath) ? readJson(worldsPath) : [],
     enemies: readJson(enemiesPath),
     dataDir
   };
@@ -135,9 +134,12 @@ function validateCodexBundle(bundle) {
 
   const expectedRoutes = getCodexRouteTemplates(DEFAULT_CODEX_BASE_PATH);
   const manifestRoutes = manifest.routes && typeof manifest.routes === "object" ? manifest.routes : {};
+  const comparableManifestRoutes = Object.fromEntries(
+    Object.entries(manifestRoutes).filter(([key]) => key !== "world")
+  );
   assert(
-    Object.keys(manifestRoutes).length === Object.keys(expectedRoutes).length
-    && Object.keys(expectedRoutes).every((key) => manifestRoutes[key] === expectedRoutes[key]),
+    Object.keys(comparableManifestRoutes).length === Object.keys(expectedRoutes).length
+    && Object.keys(expectedRoutes).every((key) => comparableManifestRoutes[key] === expectedRoutes[key]),
     "codex route templates mismatch"
   );
 
@@ -148,7 +150,7 @@ function validateCodexBundle(bundle) {
 
   validateEntityCollection(items, "itemId", "item", "item");
   validateEntityCollection(skills, "skillId", "skill", "skill");
-  validateEntityCollection(worlds, "worldId", "world", "world");
+  if (worlds.length) validateEntityCollection(worlds, "worldId", "world", "world");
   validateEntityCollection(enemies, "enemyId", "enemy", "enemy");
 
   const itemIds = new Set(items.map((entry) => entry.itemId));
@@ -159,18 +161,22 @@ function validateCodexBundle(bundle) {
     (Array.isArray(item.relatedSkillIds) ? item.relatedSkillIds : []).forEach((skillId) => {
       assert(skillIds.has(skillId), `item ${item.itemId} links to unknown skill ${skillId}`);
     });
-    (Array.isArray(item.relatedWorldIds) ? item.relatedWorldIds : []).forEach((worldId) => {
-      assert(worldIds.has(worldId), `item ${item.itemId} links to unknown world ${worldId}`);
-    });
+    if (worldIds.size) {
+      (Array.isArray(item.relatedWorldIds) ? item.relatedWorldIds : []).forEach((worldId) => {
+        assert(worldIds.has(worldId), `item ${item.itemId} links to unknown world ${worldId}`);
+      });
+    }
   });
 
   skills.forEach((skill) => {
     (Array.isArray(skill.relatedItemIds) ? skill.relatedItemIds : []).forEach((itemId) => {
       assert(itemIds.has(itemId), `skill ${skill.skillId} links to unknown item ${itemId}`);
     });
-    (Array.isArray(skill.relatedWorldIds) ? skill.relatedWorldIds : []).forEach((worldId) => {
-      assert(worldIds.has(worldId), `skill ${skill.skillId} links to unknown world ${worldId}`);
-    });
+    if (worldIds.size) {
+      (Array.isArray(skill.relatedWorldIds) ? skill.relatedWorldIds : []).forEach((worldId) => {
+        assert(worldIds.has(worldId), `skill ${skill.skillId} links to unknown world ${worldId}`);
+      });
+    }
   });
 
   worlds.forEach((world) => {
@@ -200,9 +206,11 @@ function validateCodexBundle(bundle) {
     relatedItemIds.forEach((itemId) => {
       assert(itemIds.has(itemId), `enemy ${enemy.enemyId} links to unknown item ${itemId}`);
     });
-    relatedWorldIds.forEach((worldId) => {
-      assert(worldIds.has(worldId), `enemy ${enemy.enemyId} links to unknown world ${worldId}`);
-    });
+    if (worldIds.size) {
+      relatedWorldIds.forEach((worldId) => {
+        assert(worldIds.has(worldId), `enemy ${enemy.enemyId} links to unknown world ${worldId}`);
+      });
+    }
     collectEnemyDropItemIds(enemy).forEach((itemId) => {
       assert(itemIds.has(itemId), `enemy ${enemy.enemyId} drop table links to unknown item ${itemId}`);
     });
@@ -210,13 +218,17 @@ function validateCodexBundle(bundle) {
 
   assert(manifest.counts && manifest.counts.items === items.length, "codex item count mismatch");
   assert(manifest.counts && manifest.counts.skills === skills.length, "codex skill count mismatch");
-  assert(manifest.counts && manifest.counts.worlds === worlds.length, "codex world count mismatch");
+  if (manifest.counts && manifest.counts.worlds !== undefined) {
+    assert(manifest.counts.worlds === worlds.length, "codex world count mismatch");
+  }
   assert(manifest.counts && manifest.counts.enemies === enemies.length, "codex enemy count mismatch");
 
   const indexes = manifest.indexes || {};
   assert(JSON.stringify(indexes.items || []) === JSON.stringify(createEntityIndex(items, "itemId")), "codex item index mismatch");
   assert(JSON.stringify(indexes.skills || []) === JSON.stringify(createEntityIndex(skills, "skillId")), "codex skill index mismatch");
-  assert(JSON.stringify(indexes.worlds || []) === JSON.stringify(createEntityIndex(worlds, "worldId")), "codex world index mismatch");
+  if (indexes.worlds !== undefined) {
+    assert(JSON.stringify(indexes.worlds || []) === JSON.stringify(createEntityIndex(worlds, "worldId")), "codex world index mismatch");
+  }
   assert(JSON.stringify(indexes.enemies || []) === JSON.stringify(createEntityIndex(enemies, "enemyId")), "codex enemy index mismatch");
 
   return bundle;

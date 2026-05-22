@@ -254,8 +254,7 @@ function collectItemJourneyLinks(manualContent, item) {
   return journeys
     .filter((journey) => {
       if (journey.relatedItemIds.includes(item.itemId)) return true;
-      return journey.relatedSkillIds.some((skillId) => item.relatedSkillIds.includes(skillId))
-        || journey.relatedWorldIds.some((worldId) => item.relatedWorldIds.includes(worldId));
+      return journey.relatedSkillIds.some((skillId) => item.relatedSkillIds.includes(skillId));
     })
     .slice(0, 4)
     .map((journey) => ({
@@ -266,7 +265,6 @@ function collectItemJourneyLinks(manualContent, item) {
 }
 
 function buildItemGuideBlocks(bundle, item, entry, manualContent) {
-  const worlds = item.relatedWorldIds.map(humanizeId);
   const skills = item.relatedSkillIds.map(humanizeId);
   const nextSteps = [];
 
@@ -289,13 +287,12 @@ function buildItemGuideBlocks(bundle, item, entry, manualContent) {
     {
       label: "Connected Systems",
       body: [
-        skills.length ? `This item touches ${skills.join(", ")}.` : "This item sits on the edge of the manual and stays intentionally sparse.",
-        worlds.length ? `You will see it show up around ${worlds.join(", ")}.` : ""
+        skills.length ? `This item touches ${skills.join(", ")}.` : "This item sits on the edge of the manual and stays intentionally sparse."
       ].filter(Boolean)
     },
     {
       label: "Next Steps",
-      body: nextSteps.length ? nextSteps : ["Use the connected skill, world, and journey references in this guide to see where the item leads next."]
+      body: nextSteps.length ? nextSteps : ["Use the connected skill and journey references in this guide to see where the item leads next."]
     }
   ];
 }
@@ -318,7 +315,6 @@ function renderEditorialSection(bundle, item, itemEditorial, manualContent, site
 
 function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, siteAssets) {
   const skillIndex = new Map(bundle.skills.map((skill) => [skill.skillId, skill]));
-  const worldIndex = new Map(bundle.worlds.map((world) => [world.worldId, world]));
   const itemIndex = new Map(bundle.items.map((entry) => [entry.itemId, entry]));
 
   const heroAside = `
@@ -339,8 +335,7 @@ function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, s
       ${renderStatGrid([
         { label: "Value", value: item.data.value !== undefined ? item.data.value : "None" },
         { label: "Action", value: item.data.defaultAction || "None" },
-        { label: "Skills", value: item.relatedSkillIds.length },
-        { label: "Worlds", value: item.relatedWorldIds.length }
+        { label: "Skills", value: item.relatedSkillIds.length }
       ], {
         className: "hero-stat-grid",
         itemClassName: "hero-stat-card"
@@ -389,13 +384,6 @@ function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, s
           )
         },
         {
-          label: "Referenced worlds",
-          html: renderInlineLinkedList(
-            item.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
-            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path], emptyText: "None" }
-          )
-        },
-        {
           label: "Guided journeys",
           html: renderInlineLinkedList(
             collectItemJourneyLinks(manualContent, item).map((journey) => journey.label),
@@ -404,16 +392,6 @@ function renderItemPage(bundle, editorial, itemEditorial, manualContent, item, s
         },
         { label: "Icon asset", value: getItemIconAssetId(item) || "None" }
       ], { emptyText: "No cross-reference metadata." })}
-      <p class="card-note">${renderInlineLinkedText(
-        `Read this item alongside ${describeList(
-          [
-            ...item.relatedSkillIds.map((skillId) => (skillIndex.get(skillId) || {}).title || skillId),
-            ...item.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
-            ...collectItemJourneyLinks(manualContent, item).map((journey) => journey.label)
-          ].filter(Boolean).slice(0, 8)
-        )}.`,
-        { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [item.path] }
-      )}</p>
     </section>
     <section class="section-card">
       ${renderJsonDetails("Raw exported item data", item.data)}
@@ -461,7 +439,7 @@ function renderItemIndexPage(bundle, editorial, manualContent, siteAssets) {
           <p class="eyebrow">Browse Items</p>
           <h3>Search by item, role, type, or the systems that teach it.</h3>
         </div>
-        ${renderSearchHeader("items", "Search items by role, type, skill, world, or title", bundle.items.length)}
+        ${renderSearchHeader("items", "Search items by role, type, skill, or title", bundle.items.length)}
       </div>
       ${renderItemFilterChips("items", ["combat", "gather", "food", "runes", "tools", "jewelry"])}
     </section>

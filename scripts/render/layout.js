@@ -26,13 +26,12 @@ function renderLayout(options) {
     { label: "Journeys", href: buildSectionPath("journeys"), active: currentPath.startsWith(buildSectionPath("journeys")) },
     { label: "Items", href: buildSectionPath("items"), active: currentPath.startsWith(buildSectionPath("items")) },
     { label: "Skills", href: buildSectionPath("skills"), active: currentPath.startsWith(buildSectionPath("skills")) },
-    { label: "Enemies", href: buildSectionPath("enemies"), active: currentPath.startsWith(buildSectionPath("enemies")) },
-    { label: "Worlds", href: buildSectionPath("world"), active: currentPath.startsWith(buildSectionPath("world")) }
+    { label: "Enemies", href: buildSectionPath("enemies"), active: currentPath.startsWith(buildSectionPath("enemies")) }
   ];
 
   const generatedCommit = manifest && manifest.sourceCommit ? String(manifest.sourceCommit).slice(0, 12) : "unknown";
   const generatedAt = manifest && manifest.generatedAt ? String(manifest.generatedAt) : "unknown";
-  const brandKicker = editorial.brandKicker || "Pazneria Reference Hub";
+  const brandKicker = editorial.brandKicker || "Grand Library Reference";
   const footerNote = editorial.footerNote || "Export-backed reference pages for the OSRS Clone sandbox.";
   const heroAsideHtml = heroAside || renderStatGrid(heroStats, {
     className: "hero-stat-grid",

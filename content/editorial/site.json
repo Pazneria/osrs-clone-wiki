@@ -1,7 +1,7 @@
 {
   "siteTitle": "OSRS Clone Codex",
-  "brandKicker": "Pazneria Reference Hub",
-  "tagline": "Player-first reference pages for the live Pazneria build: encounters, named NPC Talk-to dialogue, starter-town homesteads, the first quest, and the systems around them.",
+  "brandKicker": "Grand Library Reference",
+  "tagline": "Player-first reference pages for the live build: encounters, named NPC Talk-to dialogue, starter-town homesteads, the first quest, and the systems around them.",
   "footerNote": "Reference-first today, with room for deeper quest breakdowns, lore, and encounter walkthroughs once the export-backed core is fully polished.",
   "intro": [
     "The codex is designed to answer practical player questions quickly: what an item does, how a skill loop works, what an encounter drops, which NPCs can actually be talked to, and what a region offers right now.",
@@ -26,7 +26,7 @@
     },
     {
       "title": "Linked Systems",
-      "body": "Items, skills, worlds, enemies, dialogue hooks, and quest-facing pages cross-link through stable IDs so the codex stays dependable as the project grows."
+      "body": "Items, skills, enemies, dialogue hooks, and quest-facing pages cross-link through stable IDs so the codex stays dependable as the project grows."
     }
   ]
 }

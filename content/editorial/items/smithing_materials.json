@@ -83,13 +83,13 @@
     },
     "coal": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Coal Rock nodes at level 20 in Starter Town. Usually sold by Borin Ironvein in North Road Camp and Starter Town.",
+      "acquisition": "Usually gathered through Mining from Coal Rock nodes at level 20 in Starter Town. Usually sold by Borin Ironvein in Starter Town.",
       "uses": "Used in Smithing recipes that produce Adamant Bar, Mithril Bar, Rune Bar, and Steel Bar. Can be sold to Borin Ironvein.",
       "status": "draft"
     },
     "copper_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Copper Rock nodes at level 1 in North Road Camp and Starter Town. Usually sold by Borin Ironvein in North Road Camp and Starter Town.",
+      "acquisition": "Usually gathered through Mining from Copper Rock nodes at level 1 in Starter Town. Usually sold by Borin Ironvein in Starter Town.",
       "uses": "Used in Smithing recipes that produce Bronze Bar. Can be sold to Borin Ironvein.",
       "status": "draft"
     },
@@ -101,7 +101,7 @@
     },
     "gold_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Gold Rock nodes at level 40 in North Road Camp and Starter Town. Usually sold by Elira Gemhand in Starter Town.",
+      "acquisition": "Usually gathered through Mining from Gold Rock nodes at level 40 in Starter Town. Usually sold by Elira Gemhand in Starter Town.",
       "uses": "Used in Smithing recipes that produce Gold Bar. Can be sold to Elira Gemhand.",
       "status": "draft"
     },
@@ -131,7 +131,7 @@
     },
     "iron_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Iron Rock nodes at level 10 in Starter Town. Usually sold by Borin Ironvein in North Road Camp and Starter Town.",
+      "acquisition": "Usually gathered through Mining from Iron Rock nodes at level 10 in Starter Town. Usually sold by Borin Ironvein in Starter Town.",
       "uses": "Used in Smithing recipes that produce Iron Bar and Steel Bar. Can be sold to Borin Ironvein.",
       "status": "draft"
     },
@@ -173,7 +173,7 @@
     },
     "mithril_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually sold by Borin Ironvein in North Road Camp and Starter Town.",
+      "acquisition": "Usually sold by Borin Ironvein in Starter Town.",
       "uses": "Used in Smithing recipes that produce Mithril Bar. Can be sold to Borin Ironvein.",
       "status": "draft"
     },
@@ -239,7 +239,7 @@
     },
     "silver_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Silver Rock nodes at level 30 in North Road Camp and Starter Town. Usually sold by Elira Gemhand in Starter Town.",
+      "acquisition": "Usually gathered through Mining from Silver Rock nodes at level 30 in Starter Town. Usually sold by Elira Gemhand in Starter Town.",
       "uses": "Used in Smithing recipes that produce Silver Bar. Can be sold to Elira Gemhand.",
       "status": "draft"
     },
@@ -281,7 +281,7 @@
     },
     "tin_ore": {
       "description": "A gathered ore resource used for smelting bars and other metalworking recipes.",
-      "acquisition": "Usually gathered through Mining from Tin Rock nodes at level 1 in North Road Camp and Starter Town. Usually sold by Borin Ironvein in North Road Camp and Starter Town.",
+      "acquisition": "Usually gathered through Mining from Tin Rock nodes at level 1 in Starter Town. Usually sold by Borin Ironvein in Starter Town.",
       "uses": "Used in Smithing recipes that produce Bronze Bar. Can be sold to Borin Ironvein.",
       "status": "draft"
     }

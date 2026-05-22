@@ -55,32 +55,32 @@ const TOOL_SKILL_HINTS = Object.freeze({
 const SPECIAL_ITEM_EDITORIAL_SEEDS = Object.freeze({
   boar_tusk: Object.freeze({
     description: "A boar tusk kept as one of the first animal-specific trophy drops in the starter combat loop.",
-    acquisition: "Drops from boars in the outer fields of Starter Town and North Road Camp.",
+    acquisition: "Drops from boars in the outer fields of Starter Town.",
     uses: "No recipe or merchant path is exported for it, but it fits the same outer-field progression lane that feeds Tanner Rusk's tannery-side quest arc."
   }),
   goblin_club: Object.freeze({
     description: "A rough goblin club recovered as low-tier camp loot rather than player-ready equipment.",
-    acquisition: "Drops from goblin grunts in Starter Town and North Road Camp.",
+    acquisition: "Drops from goblin grunts in Starter Town.",
     uses: "No recipe or shop path is exported for it, so it mainly marks the jump from critter drops into roaming goblin encounters."
   }),
   guard_crest: Object.freeze({
     description: "A guard crest taken as a recognizable patrol drop with more identity than the starter animal trophies.",
-    acquisition: "Drops from guards in Starter Town and North Road Camp.",
+    acquisition: "Drops from guards in Starter Town.",
     uses: "No crafting or merchant path is exported for it, so it mainly serves as higher-tier patrol loot and named-faction flavor."
   }),
   guard_spear: Object.freeze({
     description: "A guard spear recovered as loot rather than exported player equipment.",
-    acquisition: "Drops from guards in Starter Town and North Road Camp.",
+    acquisition: "Drops from guards in Starter Town.",
     uses: "No equipment, recipe, or merchant path is exported for it yet, so it currently reads as higher-tier guard loot with presentation value more than utility."
   }),
   rat_tail: Object.freeze({
     description: "A rat tail kept as a disposable proof-of-kill drop from the very bottom of the combat ladder.",
-    acquisition: "Drops from rats in Starter Town and North Road Camp.",
+    acquisition: "Drops from rats in Starter Town.",
     uses: "No recipe or merchant path is exported for it, so it mainly serves as low-value starter loot and encounter flavor."
   }),
   raw_boar_meat: Object.freeze({
     description: "A raw boar meat drop from the outer fields that sits on the combat side of the starter food economy.",
-    acquisition: "Drops from boars roaming the outer fields of Starter Town and North Road Camp.",
+    acquisition: "Drops from boars roaming the outer fields of Starter Town.",
     uses: "No direct cooking recipe is exported for it yet, but it clearly belongs to the same outer-field progression loop around Tanner Rusk and Hides of the Frontier."
   }),
   raw_chicken: Object.freeze({
@@ -90,12 +90,12 @@ const SPECIAL_ITEM_EDITORIAL_SEEDS = Object.freeze({
   }),
   raw_wolf_meat: Object.freeze({
     description: "A raw wolf meat drop that marks the more dangerous end of the starter-region food-side combat loot.",
-    acquisition: "Drops from wolves in the outer reaches of Starter Town and North Road Camp.",
+    acquisition: "Drops from wolves in the outer reaches of Starter Town.",
     uses: "No direct cooking recipe is exported for it yet, but it reads as part of the same animal-hunting loop that surrounds Tanner Rusk's tannery plot and Hides of the Frontier."
   }),
   wolf_fang: Object.freeze({
     description: "A wolf fang kept as a more dangerous animal trophy from the far-out starter-region encounter bands.",
-    acquisition: "Drops from wolves in the outer reaches of Starter Town and North Road Camp.",
+    acquisition: "Drops from wolves in the outer reaches of Starter Town.",
     uses: "No recipe or merchant path is exported for it, but it reads cleanly as part of the same outer-field pressure that frames Tanner Rusk's first quest and tannery progression."
   })
 });

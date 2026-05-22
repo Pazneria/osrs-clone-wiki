@@ -6,7 +6,7 @@
       "title": "Early Progression",
       "summary": [
         "A starter path that ties together the first tools, the named NPC houses around Starter Town, and the basic gathering loops that keep a new account moving.",
-        "It stays close to Starter Town and North Road Camp so the first upgrades, Talk-to detours, and combat drops come from the same small map slice the export already centers."
+        "It stays close to Starter Town so the first upgrades, Talk-to detours, and combat drops come from the same small map slice the export already centers."
       ],
       "audience": "new players",
       "difficulty": "beginner",
@@ -35,8 +35,7 @@
         "cooking"
       ],
       "relatedWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "nextJourneyIds": [
         "hides_of_the_frontier",
@@ -62,7 +61,7 @@
             "smithing"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -85,8 +84,7 @@
             "mining"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         },
         {
@@ -111,8 +109,7 @@
             "cooking"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         }
       ]
@@ -145,8 +142,7 @@
         "cooking"
       ],
       "relatedWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "nextJourneyIds": [
         "bronze_gear",
@@ -170,7 +166,7 @@
             "crafting"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -194,8 +190,7 @@
             "cooking"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         },
         {
@@ -215,7 +210,7 @@
             "crafting"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         }
       ]
@@ -253,8 +248,7 @@
         "woodcutting"
       ],
       "relatedWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "nextJourneyIds": [
         "fishing_to_food",
@@ -279,8 +273,7 @@
             "smithing"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         },
         {
@@ -305,7 +298,7 @@
             "mining"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -326,7 +319,7 @@
             "smithing"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         }
       ]
@@ -360,8 +353,7 @@
         "cooking"
       ],
       "relatedWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "nextJourneyIds": [
         "first_runes",
@@ -384,7 +376,7 @@
             "fishing"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -405,8 +397,7 @@
             "cooking"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         },
         {
@@ -429,8 +420,7 @@
             "cooking"
           ],
           "worldIds": [
-            "starter_town",
-            "north_road_camp"
+            "main_overworld"
           ]
         }
       ]
@@ -465,7 +455,7 @@
         "runecrafting"
       ],
       "relatedWorldIds": [
-        "starter_town"
+        "main_overworld"
       ],
       "nextJourneyIds": [
         "early_progression",
@@ -487,7 +477,7 @@
             "runecrafting"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -507,7 +497,7 @@
             "runecrafting"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         },
         {
@@ -532,7 +522,7 @@
             "runecrafting"
           ],
           "worldIds": [
-            "starter_town"
+            "main_overworld"
           ]
         }
       ]

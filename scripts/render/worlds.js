@@ -152,6 +152,7 @@ function renderWorldCard(world, siteAssets, manualWorld) {
     `${world.routeCount} routes`,
     `${world.travelLinks.length} travel links`
   ];
+  if (world.relatedSkillIds.length) badges.push(`${world.relatedSkillIds.length} skill anchors`);
   if (manualWorld && Array.isArray(manualWorld.featuredJourneyIds) && manualWorld.featuredJourneyIds.length) {
     badges.push(`${manualWorld.featuredJourneyIds.length} journeys`);
   }
@@ -172,12 +173,6 @@ function renderWorldCard(world, siteAssets, manualWorld) {
         </div>
       </div>
       ${renderChipList(badges, { className: "pill-list pill-list--dense", emptyText: "No region highlights." })}
-      ${world.relatedSkillIds.length
-        ? `<p class="card-note">${renderInlineLinkedText(
-          `Skill anchors: ${describeList(world.relatedSkillIds.map((skillId) => humanizeId(skillId)))}.`,
-          { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [world.path] }
-        )}</p>`
-        : `<p class="subtle">No linked skill groups.</p>`}
     </article>
   `;
 }

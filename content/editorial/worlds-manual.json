@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "entries": {
-    "starter_town": {
+    "main_overworld": {
       "overview": [
         "Starter Town is the project's main service hub and now also its broadest authored combat region, with encounter pockets running from the castle training dummy and south field out to the far goblin, boar, and wolf bands.",
         "The hub is denser than before: named NPCs live in bespoke homesteads and work plots, town NPCs roam instead of reading as static markers, and the castle, store, smithing, tannery, pond, grove, mine, and altar lanes all connect cleanly.",
@@ -25,7 +25,7 @@
       "nextSteps": [
         "Use Starter Town as the baseline world for comparing hub-safe paths against outer encounter density, roaming behavior, and named-NPC placement quality.",
         "Cross-check Tanner Rusk's tannery, dialogue, quest gate, and leather shop against the crafting pages, item pages, and the newer enemy drops that feed them.",
-        "After the hub is clear, follow the road connection to North Road Camp and compare its tighter threshold-guarded outpost flow to Starter Town's broader encounter lattice."
+        "After the hub is clear, use the road encounters, services, and gathering routes to compare Starter Town's broader encounter lattice against the starter loops."
       ],
       "featuredItemIds": [
         "hammer",
@@ -44,48 +44,39 @@
         "runecrafting",
         "woodcutting"
       ],
-      "featuredWorldIds": [
-        "north_road_camp"
-      ],
+      "featuredWorldIds": [],
       "featuredJourneyIds": [
         "early_progression",
         "hides_of_the_frontier"
       ]
     },
-    "north_road_camp": {
+    "tutorial_island": {
       "overview": [
-        "North Road Camp is a smaller forward region that compresses the same core skill families into a tighter outpost layout.",
-        "Its quarry, brazier, pine loop, caravan point, and guarded road threshold sit close together, so it reads as a faster field-test version of the starter loop.",
-        "The gated crystal seam and outer goblin, boar, and wolf pockets give the camp a clearer progression wall, which makes the region feel like a checkpoint rather than a duplicate of Starter Town."
+        "Tutorial Island is the safe teaching world before Hearthmere, built around a controlled route through gathering, processing, combat, banking, crafting, magic, and departure.",
+        "Its export is smaller than the mainland on purpose: gates, tutors, and work yards are arranged to teach the basic loop order before the player reaches the broader Main Overworld."
       ],
       "whyItMatters": [
-        "This world proves the project can support a second playable region without rebuilding the entire hub structure.",
-        "It combines minimal service coverage with enough resources and roadside combat pressure to stay useful, which is important for testing sparse-but-functional world design.",
-        "The locked gem seam adds a concrete progression hook and makes the camp valuable both early and later."
+        "The island gives the codex a clean onboarding reference separate from the mainland's open-ended roads, towns, and encounter bands.",
+        "It is the best place to compare tutorial gating, first-tool pacing, and safe lesson spaces against the richer Starter Town loops."
       ],
       "howToGetStarted": [
-        "Arrive through the caravan guide, then use the outpost furnace and anvil to turn nearby ore into usable smithing stock.",
-        "Clear the quarry first for copper, tin, and clay, then return later for the crystal seam once the gate is unlocked.",
-        "The pine loop and camp pond keep the region productive even before the gated mine opens, so you can gather while you train."
+        "Follow the guide route from the arrival yard through the fenced lesson spaces, using each tutor stop to connect a tool, action, and output.",
+        "Treat the island as a rehearsal: gather, process, fight, bank, craft, and leave with enough system memory to understand Hearthmere."
       ],
       "connectedSystems": [
-        "Services: shopkeeper, caravan guide, Prospector Dain, furnace, and anvil.",
-        "Routes: outpost quarry, crystal seam, pine loop, camp pond bank, outpost brazier, and breeze shrine.",
-        "Skills: cooking, fishing, mining, runecrafting, and woodcutting."
+        "Tutorial Island touches the same early skill families as the mainland, but in a narrower and safer order.",
+        "Its route is meant to feed directly into Starter Town, where those lessons become repeatable economy and travel loops."
       ],
       "nextSteps": [
-        "Use North Road Camp as the field-test region for early mining and travel.",
-        "Compare its route density and threshold-guarded road encounters to Starter Town so the difference between a hub and an outpost stays obvious.",
-        "Return after progression to unlock the crystal seam and verify the gated resource path."
+        "After leaving the island, compare the first mainland service hub against the same skills and tools introduced by the tutorial.",
+        "Use the early progression journey to continue from tutorial literacy into the broader Hearthmere economy."
       ],
       "featuredItemIds": [
-        "copper_ore",
-        "tin_ore",
-        "clay",
-        "iron_ore",
-        "silver_ore",
-        "gold_ore",
+        "knife",
+        "tinderbox",
         "hammer",
+        "fishing_rod",
+        "small_net",
         "logs"
       ],
       "featuredSkillIds": [
@@ -96,7 +87,7 @@
         "woodcutting"
       ],
       "featuredWorldIds": [
-        "starter_town"
+        "main_overworld"
       ],
       "featuredJourneyIds": [
         "early_progression"

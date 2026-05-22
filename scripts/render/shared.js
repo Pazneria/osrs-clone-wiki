@@ -107,13 +107,6 @@ function buildInlineLinkRegistry(bundle, manualContent = {}) {
       aliases: [skill.title]
     });
   });
-  bundle.worlds.forEach((world) => {
-    routeEntries.push({
-      href: world.path,
-      label: world.title,
-      aliases: [world.title]
-    });
-  });
   bundle.enemies.forEach((enemy) => {
     const enemyData = enemy && enemy.data && typeof enemy.data === "object" ? enemy.data : {};
     const enemyAliases = [

@@ -269,7 +269,6 @@ function buildEnemySearchText(enemy) {
 
 function renderEnemyCard(enemy, siteAssets) {
   const drops = getEnemyDropEntries(enemy).length;
-  const relatedWorldLabels = getEnemyRelatedWorldIds(enemy).map(humanizeId);
   return `
     <article class="entity-card entity-card--indexed" data-search="${escapeHtml(buildEnemySearchText(enemy))}">
       <div class="entity-card__header">
@@ -292,12 +291,6 @@ function renderEnemyCard(enemy, siteAssets) {
         getEnemyRespawnTicks(enemy) !== null ? `${formatTicks(getEnemyRespawnTicks(enemy))} respawn` : null,
         getEnemyRoamingRadius(enemy) !== null ? `Roam ${formatNumber(getEnemyRoamingRadius(enemy))}` : null
       ].filter(Boolean), { className: "pill-list pill-list--dense" })}
-      ${relatedWorldLabels.length
-        ? `<p class="card-note">${renderInlineLinkedText(`Found in ${describeList(relatedWorldLabels)}.`, {
-          linkRegistry: siteAssets.linkRegistry,
-          excludeHrefs: [enemy.path]
-        })}</p>`
-        : `<p class="subtle">No linked worlds.</p>`}
     </article>
   `;
 }
@@ -353,7 +346,6 @@ function renderDropTableSection(enemy, itemIndex) {
 
 function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
   const itemIndex = new Map(bundle.items.map((item) => [item.itemId, item]));
-  const worldIndex = new Map(bundle.worlds.map((world) => [world.worldId, world]));
   const data = getEnemyData(enemy);
   const level = getEnemyLevel(enemy);
   const hp = getEnemyHitpoints(enemy);
@@ -361,7 +353,6 @@ function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
   const roamingRadius = getEnemyRoamingRadius(enemy);
   const homeTile = getEnemyHomeTile(enemy);
   const dropEntries = getEnemyDropEntries(enemy);
-  const relatedWorldIds = getEnemyRelatedWorldIds(enemy);
   const relatedItemIds = Array.from(new Set([
     ...getEnemyRelatedItemIds(enemy),
     ...getEnemyDropItemIds(enemy)
@@ -385,8 +376,7 @@ function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
       ${renderStatGrid([
         { label: "Level", value: level !== null && level !== undefined ? level : "None" },
         { label: "HP", value: hp !== null && hp !== undefined ? hp : "None" },
-        { label: "Drops", value: dropEntries.length },
-        { label: "Worlds", value: relatedWorldIds.length }
+        { label: "Drops", value: dropEntries.length }
       ], {
         className: "hero-stat-grid",
         itemClassName: "hero-stat-card"
@@ -422,13 +412,6 @@ function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
       </div>
       ${renderMetaList([
         {
-          label: "Related worlds",
-          html: renderInlineLinkedList(
-            relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || humanizeId(worldId)),
-            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [enemy.path], emptyText: "None" }
-          )
-        },
-        {
           label: "Related items",
           html: renderInlineLinkedList(
             relatedItemIds.map((itemId) => (itemIndex.get(itemId) || {}).title || humanizeId(itemId)),
@@ -439,10 +422,6 @@ function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
         { label: "Behavior", value: data.behavior || "None" }
       ])}
       <div class="prose">
-        <p>${renderInlineLinkedText(
-          `This encounter is placed in ${describeList(relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || humanizeId(worldId)))}.`,
-          { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [enemy.path] }
-        )}</p>
         <p>${renderInlineLinkedText(
           `Its drop and reference context runs through ${describeList(relatedItemIds.map((itemId) => (itemIndex.get(itemId) || {}).title || humanizeId(itemId)))}.`,
           { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [enemy.path] }
@@ -477,8 +456,7 @@ function renderEnemyPage(bundle, editorial, enemy, siteAssets) {
       heroBadges: [
         level !== null && level !== undefined ? `Lvl ${formatNumber(level)}` : "Enemy",
         dropEntries.length ? `${dropEntries.length} drops` : "No drops",
-        respawnTicks !== null ? `${formatTicks(respawnTicks)} respawn` : "No respawn",
-        relatedWorldIds.length ? `${relatedWorldIds.length} worlds` : "No world links"
+        respawnTicks !== null ? `${formatTicks(respawnTicks)} respawn` : "No respawn"
       ],
       heroAside,
       body
@@ -496,7 +474,6 @@ function renderEnemyIndexPage(bundle, editorial, siteAssets) {
   });
   const totalDrops = enemies.reduce((sum, enemy) => sum + getEnemyDropEntries(enemy).length, 0);
   const roamingCount = enemies.filter((enemy) => getEnemyRoamingRadius(enemy) !== null && getEnemyRoamingRadius(enemy) !== undefined).length;
-  const worldLinkedCount = enemies.reduce((sum, enemy) => sum + getEnemyRelatedWorldIds(enemy).length, 0);
   const cards = enemies.map((enemy) => renderEnemyCard(enemy, siteAssets)).join("");
 
   const heroAside = `
@@ -504,8 +481,7 @@ function renderEnemyIndexPage(bundle, editorial, siteAssets) {
       ${renderStatGrid([
         { label: "Enemies", value: enemies.length, detail: "Published encounter pages" },
         { label: "Drop rows", value: totalDrops, detail: "All exported loot entries" },
-        { label: "Roaming", value: roamingCount, detail: "Enemies with patrol radii" },
-        { label: "World links", value: worldLinkedCount, detail: "Where enemies are placed" }
+        { label: "Roaming", value: roamingCount, detail: "Enemies with patrol radii" }
       ], {
         className: "hero-stat-grid",
         itemClassName: "hero-stat-card"
@@ -518,9 +494,9 @@ function renderEnemyIndexPage(bundle, editorial, siteAssets) {
       <div class="section-heading">
         <div>
           <p class="eyebrow">Browse Enemies</p>
-          <h3>Search by enemy id, title, or the loot and worlds tied to the encounter.</h3>
+          <h3>Search by enemy id, title, or loot tied to the encounter.</h3>
         </div>
-        ${renderSearchHeader("enemies", "Search enemies by id, title, drop item, or world", enemies.length)}
+        ${renderSearchHeader("enemies", "Search enemies by id, title, or drop item", enemies.length)}
       </div>
     </section>
     <section class="entity-grid" data-filter-group="enemies">
@@ -538,7 +514,7 @@ function renderEnemyIndexPage(bundle, editorial, siteAssets) {
       eyebrow: "Encounter Index",
       heroTitle: "Enemies",
       heroBody: "<p>Browse encounter pages for hostile creatures, their placement, and their drop tables.</p>",
-      heroBadges: ["Encounter pages", "Drop tables", "World-linked"],
+      heroBadges: ["Encounter pages", "Drop tables"],
       heroAside,
       body
     })

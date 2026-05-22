@@ -4,7 +4,7 @@ This repository hosts the standalone codex site for the OSRS Clone project.
 
 The codex does not duplicate gameplay facts by hand. Instead, it syncs a versioned export bundle from the sibling `OSRS Clone` repo and turns that bundle into static pages.
 
-GitHub Pages deployment is handled by `.github/workflows/deploy-pages.yml`. The workflow checks out both this repo and `Pazneria/osrs-clone`, builds the static site, and publishes `dist/osrs-clone-codex/` to `https://pazneria.github.io/osrs-clone-codex/`.
+GitHub Pages deployment is handled by `.github/workflows/deploy-pages.yml`. The workflow checks out both this repo and the sibling game source, builds the static site, and publishes `dist/osrs-clone-codex/`.
 
 ## Expected workspace layout
 
@@ -37,7 +37,7 @@ The codex uses stable ID routes from the export manifest:
 
 - `/osrs-clone-codex/items/:itemId`
 - `/osrs-clone-codex/skills/:skillId`
-- `/osrs-clone-codex/world/:worldId`
+- `/osrs-clone-codex/enemies/:enemyId`
 
 Optional query params:
 

@@ -14,7 +14,6 @@ const {
   renderStatGrid
 } = require("./shared");
 const {
-  buildEntityLinkRows,
   renderGuideBlockSection,
   renderJourneyCard,
   renderRichText
@@ -116,7 +115,6 @@ function normalizeManualContent(manualContent = {}) {
 
 function scoreManualEntry(entry = {}) {
   return (Array.isArray(entry.featuredJourneyIds) ? entry.featuredJourneyIds.length : 0) * 3
-    + (Array.isArray(entry.featuredWorldIds) ? entry.featuredWorldIds.length : 0) * 2
     + (Array.isArray(entry.featuredItemIds) ? entry.featuredItemIds.length : 0);
 }
 
@@ -155,39 +153,12 @@ function getRepresentativeIconAssetId(bundle, entry) {
   return null;
 }
 
-function buildManualLinkRows(bundle, entry, type) {
-  const rows = buildEntityLinkRows(bundle, {
-    itemIds: Array.isArray(entry.featuredItemIds) ? entry.featuredItemIds : [],
-    skillIds: Array.isArray(entry.featuredSkillIds) ? entry.featuredSkillIds : [],
-    worldIds: Array.isArray(entry.featuredWorldIds) ? entry.featuredWorldIds : []
-  });
-
-  if (type === "skill") {
-    return rows.filter((row) => row.href !== entry.path);
-  }
-
-  if (type === "world") {
-    return rows.filter((row) => row.href !== entry.path);
-  }
-
-  return rows.filter((row) => row.href !== entry.path);
-}
-
 function renderManualEntryCard(bundle, entry, manualEntry, siteAssets, type) {
   const iconAssetId = getRepresentativeIconAssetId(bundle, manualEntry);
   const labels = [
     `${formatNumber(Array.isArray(manualEntry.featuredItemIds) ? manualEntry.featuredItemIds.length : 0)} items`,
-    `${formatNumber(Array.isArray(manualEntry.featuredSkillIds) ? manualEntry.featuredSkillIds.length : 0)} skills`,
-    `${formatNumber(Array.isArray(manualEntry.featuredWorldIds) ? manualEntry.featuredWorldIds.length : 0)} worlds`
+    `${formatNumber(Array.isArray(manualEntry.featuredSkillIds) ? manualEntry.featuredSkillIds.length : 0)} skills`
   ];
-  const supportingRows = buildManualLinkRows(bundle, manualEntry, type);
-  const supportCopy = supportingRows.length
-    ? `<p class="card-note">${renderInlineLinkedText(
-      `Best paired with ${describeList(supportingRows.slice(0, 4).map((row) => row.label))}.`,
-      { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [entry.path] }
-    )}</p>`
-    : "";
-
   return `
     <article class="entity-card entity-card--indexed">
       <div class="entity-card__header">
@@ -196,10 +167,10 @@ function renderManualEntryCard(bundle, entry, manualEntry, siteAssets, type) {
           assetId: iconAssetId,
           label: entry.title,
           size: "md",
-          fallbackText: entry.skillId || entry.worldId || entry.title
+          fallbackText: entry.skillId || entry.title
         })}
         <div class="entity-card__copy">
-          <p class="eyebrow">${escapeHtml(type === "skill" ? entry.skillId : entry.worldId)}</p>
+          <p class="eyebrow">${escapeHtml(entry.skillId || type)}</p>
           <h3><a href="${escapeHtml(entry.path)}">${escapeHtml(entry.title)}</a></h3>
           ${renderRichText(manualEntry.overview, {
             emptyText: "No overview yet.",
@@ -209,13 +180,6 @@ function renderManualEntryCard(bundle, entry, manualEntry, siteAssets, type) {
         </div>
       </div>
       ${renderChipList(labels, { className: "pill-list pill-list--dense" })}
-      ${renderRichText(manualEntry.howToGetStarted, {
-        emptyText: "No start notes yet.",
-        listClassName: "guide-list guide-list--compact",
-        linkRegistry: siteAssets.linkRegistry,
-        excludeHrefs: [entry.path]
-      })}
-      ${supportCopy}
     </article>
   `;
 }
@@ -247,49 +211,6 @@ function renderEnemyCard(enemy, siteAssets) {
   `;
 }
 
-function renderJourneySupportRows(bundle, journeys) {
-  const rows = [];
-  const seen = new Set();
-
-  journeys.slice(0, 4).forEach((journey) => {
-    (Array.isArray(journey.relatedItemIds) ? journey.relatedItemIds : []).forEach((itemId) => {
-      const key = `item:${itemId}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      const item = bundle.items.find((candidate) => candidate.itemId === itemId);
-      rows.push({
-        href: item ? item.path : buildSectionPath("items"),
-        label: item ? item.title : humanizeId(itemId),
-        meta: "Item"
-      });
-    });
-    (Array.isArray(journey.relatedSkillIds) ? journey.relatedSkillIds : []).forEach((skillId) => {
-      const key = `skill:${skillId}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      const skill = bundle.skills.find((candidate) => candidate.skillId === skillId);
-      rows.push({
-        href: skill ? skill.path : buildSectionPath("skills"),
-        label: skill ? skill.title : humanizeId(skillId),
-        meta: "Skill"
-      });
-    });
-    (Array.isArray(journey.relatedWorldIds) ? journey.relatedWorldIds : []).forEach((worldId) => {
-      const key = `world:${worldId}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      const world = bundle.worlds.find((candidate) => candidate.worldId === worldId);
-      rows.push({
-        href: world ? world.path : buildSectionPath("world"),
-        label: world ? world.title : humanizeId(worldId),
-        meta: "World"
-      });
-    });
-  });
-
-  return rows;
-}
-
 function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybeSiteAssets) {
   const hasManualContent = arguments.length >= 4;
   const manualContent = hasManualContent ? manualContentOrSiteAssets : {};
@@ -299,21 +220,18 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
   const editorialCards = Array.isArray(editorial.homeSections) ? editorial.homeSections : [];
   const startJourneys = sortJourneysForHome(manual.journeys).slice(0, 4);
   const featuredSkills = selectManualEntries(manual.skillsById, bundle.skills, 4);
-  const featuredWorlds = selectManualEntries(manual.worldsById, bundle.worlds, 4);
   const featuredEnemies = (bundle.enemies || []).slice().sort((left, right) => String(left.title || "").localeCompare(String(right.title || ""))).slice(0, 4);
   const goalRows = startJourneys.map((journey) => ({
     href: journey.path,
     label: journey.title,
     meta: [journey.audience, journey.difficulty].filter(Boolean).join(" | ")
   }));
-  const supportRows = renderJourneySupportRows(bundle, startJourneys);
 
   const heroAside = `
     <div class="hero-panel">
       ${renderStatGrid([
         { label: "Journeys", value: manual.journeys.length, detail: "Start-here routes" },
         { label: "Skills", value: bundle.skills.length, detail: "Manual-backed pages" },
-        { label: "Worlds", value: bundle.worlds.length, detail: "Region references" },
         { label: "Enemies", value: bundle.enemies.length, detail: "Encounter pages" },
         { label: "Goal routes", value: goalRows.length, detail: "Player entry points" }
       ], {
@@ -336,7 +254,7 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
         {
           label: "How to use it",
           body: [
-            "Start with a journey or the first live quest, then open the linked skills, encounters, NPCs, and worlds to keep the active loop visible.",
+            "Start with a journey or the first live quest, then open the linked skills, encounters, and NPCs to keep the active loop visible.",
             "The homepage is driven by `manualContent`, so the cards stay aligned with the exported reference data instead of drifting into hand-wavy summaries."
           ]
         },
@@ -383,19 +301,6 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
     <section class="section-card">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">World Highlights</p>
-          <h3>Regions that tell you what is actually live before you go, including service districts and starter-town homesteads.</h3>
-        </div>
-        <a class="text-link" href="${escapeHtml(buildSectionPath("world"))}">Open world index</a>
-      </div>
-      <div class="entity-grid">
-        ${featuredWorlds.map(({ entry, manual: manualEntry }) => renderManualEntryCard(bundle, entry, manualEntry, siteAssets, "world")).join("")}
-      </div>
-    </section>
-
-    <section class="section-card">
-      <div class="section-heading">
-        <div>
           <p class="eyebrow">Enemy Encounters</p>
           <h3>Live encounter pages with danger level, roaming, respawn, and loot at a glance.</h3>
         </div>
@@ -419,10 +324,6 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
           `Good starting routes: ${describeList(goalRows.map((row) => row.label))}.`,
           { linkRegistry: siteAssets.linkRegistry }
         )}</p>
-        ${supportRows.length ? `<p>${renderInlineLinkedText(
-          `Supporting pages that reinforce those routes: ${describeList(supportRows.map((row) => row.label))}.`,
-          { linkRegistry: siteAssets.linkRegistry }
-        )}</p>` : ""}
       </div>
     </section>
 
@@ -437,7 +338,6 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
         bundle.manifest.routes.item,
         bundle.manifest.routes.skill,
         bundle.manifest.routes.enemy,
-        bundle.manifest.routes.world,
         buildSectionPath("enemies"),
         buildSectionPath("journeys")
       ], { className: "pill-list" })}
@@ -453,7 +353,13 @@ function renderHomePage(bundle, editorial, manualContentOrSiteAssets = {}, maybe
     heroTitle: editorial.siteTitle,
     heroBody: `
       <p>${escapeHtml(editorial.tagline)}</p>
-      <p>${escapeHtml("Open a journey, inspect the supporting encounters, Talk-to NPCs, homestead-heavy world pages, and the first live quest, then follow the links back to the exported game data.")}</p>
+      <p>${escapeHtml("Open a journey, inspect the supporting encounters, Talk-to NPCs, and the first live quest, then follow the links back to the exported game data.")}</p>
+      <div class="archive-actions" aria-label="Codex entry points">
+        <a href="${escapeHtml(buildSectionPath("journeys"))}">Browse Journeys</a>
+        <a href="${escapeHtml(buildSectionPath("items"))}">Search Items</a>
+        <a href="${escapeHtml(buildSectionPath("skills"))}">Study Skills</a>
+        <a href="${escapeHtml(buildSectionPath("enemies"))}">Inspect Enemies</a>
+      </div>
     `,
     heroBadges: ["Reference-first", "Encounter pages", "Talk-to and quest aware"],
     heroAside,

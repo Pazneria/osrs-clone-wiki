@@ -101,7 +101,7 @@
     },
     "iron_axe": {
       "description": "The Iron Axe can be equipped as a weapon and used as a Woodcutting tool.",
-      "acquisition": "Crafted through Crafting at level 1 in the Inventory from Iron Axe Head x1 and Wooden Handle w/ Strap x1. It is also sold by the Forester Teacher and stocked by the General Store in North Road Camp and Starter Town.",
+      "acquisition": "Crafted through Crafting at level 1 in the Inventory from Iron Axe Head x1 and Wooden Handle w/ Strap x1. It is also sold by the Forester Teacher and stocked by the General Store in Starter Town.",
       "uses": "It can be equipped for combat and requires Attack 1; it also functions as a Woodcutting tool. It can be sold to Tanner Rusk in Starter Town and the Forester Teacher.",
       "status": "draft"
     },
@@ -119,7 +119,7 @@
     },
     "iron_pickaxe": {
       "description": "The Iron Pickaxe can be equipped as a weapon and used as a Mining tool.",
-      "acquisition": "Crafted through Crafting at level 1 in the Inventory from Iron Pickaxe Head x1 and Wooden Handle w/ Strap x1. It is also stocked by the General Store in North Road Camp and Starter Town.",
+      "acquisition": "Crafted through Crafting at level 1 in the Inventory from Iron Pickaxe Head x1 and Wooden Handle w/ Strap x1. It is also stocked by the General Store in Starter Town.",
       "uses": "It can be equipped for combat and requires Attack 1; it also functions as a Mining tool. It can be sold to Tanner Rusk in Starter Town.",
       "status": "draft"
     },

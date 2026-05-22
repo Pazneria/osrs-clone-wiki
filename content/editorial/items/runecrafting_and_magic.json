@@ -15,6 +15,12 @@
       "uses": "No downstream recipe inputs, merchant buys, or tool uses are listed in this batch.",
       "status": "draft"
     },
+    "borrowed_tiara": {
+      "description": "A borrowed tiara used as the reference piece for imprinting a tiara mould.",
+      "acquisition": "No direct acquisition path is exported for this item, so the entry stays conservative.",
+      "uses": "It is used in Crafting recipes that produce Imprinted Tiara Mould.",
+      "status": "draft"
+    },
     "diamond_gold_tiara": {
       "description": "A Gold Tiara upgraded with a cut diamond. It is a Crafting output and Elira Gemhand buys it in Starter Town.",
       "acquisition": "It is produced through Crafting at level 40 in the inventory using Gold Tiara x1 and Cut diamond x1.",

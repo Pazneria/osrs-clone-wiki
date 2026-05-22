@@ -3,26 +3,18 @@ const { renderLayout } = require("./layout");
 const {
   buildSectionPath,
   escapeHtml,
-  renderInlineLinkedText,
   renderChipList,
   renderEntityIcon,
   renderSearchHeader,
   renderStatGrid
 } = require("./shared");
 const {
-  buildEntityLinkRows,
   renderGuideBlockSection,
   renderJourneyCard,
   renderRichText
 } = require("./manual");
 
-function renderJourneyStep(step, bundle, options = {}) {
-  const linkedRows = buildEntityLinkRows(bundle, {
-    itemIds: step.itemIds,
-    skillIds: step.skillIds,
-    worldIds: step.worldIds
-  });
-
+function renderJourneyStep(step, _bundle, options = {}) {
   return `
     <article class="section-card section-card--nested manual-step">
       <div class="section-heading">
@@ -32,12 +24,6 @@ function renderJourneyStep(step, bundle, options = {}) {
         </div>
       </div>
       ${renderRichText(step.body, options)}
-      ${linkedRows.length
-        ? `<p class="card-note">${renderInlineLinkedText(
-          `Keep ${linkedRows.map((row) => row.label).join(", ")} in view while you do this step.`,
-          options
-        )}</p>`
-        : ""}
     </article>
   `;
 }
@@ -46,11 +32,6 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
   const nextJourneys = journey.nextJourneyIds
     .map((journeyId) => manualContent.journeys.journeysById[journeyId])
     .filter(Boolean);
-  const linkedRows = buildEntityLinkRows(bundle, {
-    itemIds: journey.relatedItemIds,
-    skillIds: journey.relatedSkillIds,
-    worldIds: journey.relatedWorldIds
-  });
 
   const heroAside = `
     <div class="hero-panel">
@@ -72,27 +53,11 @@ function renderJourneyPage(bundle, editorial, manualContent, journey, siteAssets
       badges: [journey.audience, journey.difficulty],
       blocks: [
         { label: "Summary", body: journey.summary },
-        { label: "Outcome", body: [`This journey connects ${journey.relatedSkillIds.length} skills, ${journey.relatedWorldIds.length} worlds, and the items needed to make the loop feel concrete.`] }
+        { label: "Outcome", body: [`This journey connects ${journey.relatedSkillIds.length} skills and the items needed to make the loop feel concrete.`] }
       ],
       linkRegistry: siteAssets.linkRegistry,
       excludeHrefs: [journey.path]
     })}
-    ${linkedRows.length ? `
-      <section class="section-card">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Route Context</p>
-            <h3>Pages that reinforce the journey while you follow it</h3>
-          </div>
-        </div>
-        <div class="prose">
-          <p>${renderInlineLinkedText(
-            `This route is best read alongside ${linkedRows.map((row) => row.label).join(", ")}.`,
-            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [journey.path] }
-          )}</p>
-        </div>
-      </section>
-    ` : ""}
     <section class="section-card">
       <div class="section-heading">
         <div>
@@ -158,8 +123,7 @@ function renderJourneyIndexPage(bundle, editorial, manualContent, siteAssets) {
     <div class="hero-panel">
       ${renderStatGrid([
         { label: "Journeys", value: journeys.length, detail: "Curated guided loops" },
-        { label: "Skills", value: bundle.skills.length, detail: "Systems covered by the manual" },
-        { label: "Worlds", value: bundle.worlds.length, detail: "Regions touched by the routes" }
+        { label: "Skills", value: bundle.skills.length, detail: "Systems covered by the manual" }
       ], {
         className: "hero-stat-grid",
         itemClassName: "hero-stat-card"
@@ -174,10 +138,10 @@ function renderJourneyIndexPage(bundle, editorial, manualContent, siteAssets) {
           <p class="eyebrow">Start Here</p>
           <h3>Browse curated loops instead of raw systems.</h3>
         </div>
-        ${renderSearchHeader("journeys", "Search journeys by title, system, region, or goal", journeys.length)}
+        ${renderSearchHeader("journeys", "Search journeys by title, system, item, or goal", journeys.length)}
       </div>
       <div class="prose">
-        <p>Journey pages turn the codex into a living manual: choose a player goal, follow a route, and keep the important item, skill, and world pages within reach.</p>
+        <p>Journey pages turn the codex into a living manual: choose a player goal, follow a route, and keep the important item and skill pages within reach.</p>
       </div>
     </section>
     <section class="entity-grid" data-filter-group="journeys">
@@ -194,7 +158,7 @@ function renderJourneyIndexPage(bundle, editorial, manualContent, siteAssets) {
       pageTitle: "Journeys",
       eyebrow: "Living Manual",
       heroTitle: "Journeys",
-      heroBody: "<p>Follow curated progression loops that explain what to gather, what to craft, where to go, and which systems to open next.</p>",
+      heroBody: "<p>Follow curated progression loops that explain what to gather, what to craft, and which systems to open next.</p>",
       heroBadges: ["Start-here guides", "Cross-system loops", "Static-site friendly"],
       heroAside,
       body

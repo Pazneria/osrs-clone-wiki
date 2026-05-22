@@ -9,6 +9,18 @@
       "uses": "It is used in jewelry-crafting recipes that shape rings, amulets, or tiaras.",
       "status": "draft"
     },
+    "borrowed_amulet": {
+      "description": "A borrowed amulet used as the reference piece for imprinting an amulet mould.",
+      "acquisition": "No direct acquisition path is exported for this item, so the entry stays conservative.",
+      "uses": "It is used in Crafting recipes that produce Imprinted Amulet Mould.",
+      "status": "draft"
+    },
+    "borrowed_ring": {
+      "description": "A borrowed ring used as the reference piece for imprinting a ring mould.",
+      "acquisition": "No direct acquisition path is exported for this item, so the entry stays conservative.",
+      "uses": "It is used in Crafting recipes that produce Imprinted Ring Mould.",
+      "status": "draft"
+    },
     "bear_leather": {
       "description": "A leather crafting material used in equipment and strap recipes.",
       "acquisition": "Usually bought from Tanner Rusk in Starter Town.",
@@ -29,7 +41,7 @@
     },
     "clay": {
       "description": "A basic mining resource gathered from Clay Rock nodes.",
-      "acquisition": "Usually mined from Clay Rock at level 1 in North Road Camp and Starter Town.",
+      "acquisition": "Usually mined from Clay Rock at level 1 in Starter Town.",
       "uses": "No downstream recipe or tool use is exported here, so this remains a conservative draft entry.",
       "status": "draft"
     },
@@ -91,6 +103,24 @@
       "description": "A plain gold ring used as a base for gem-set jewelry.",
       "acquisition": "Mainly produced through Smithing at level 40 in a Furnace using Gold Bar x1.",
       "uses": "It is used in Crafting recipes that produce Diamond Gold Ring, Emerald Gold Ring, Ruby Gold Ring, and Sapphire Gold Ring.",
+      "status": "draft"
+    },
+    "imprinted_amulet_mould": {
+      "description": "An imprinted mould blank used as the precursor to the reusable Amulet mould.",
+      "acquisition": "It is made by Crafting Soft Clay together with a Borrowed Amulet in inventory.",
+      "uses": "It is used in Crafting recipes that produce Amulet mould.",
+      "status": "draft"
+    },
+    "imprinted_ring_mould": {
+      "description": "An imprinted mould blank used as the precursor to the reusable Ring mould.",
+      "acquisition": "It is made by Crafting Soft Clay together with a Borrowed Ring in inventory.",
+      "uses": "It is used in Crafting recipes that produce Ring mould.",
+      "status": "draft"
+    },
+    "imprinted_tiara_mould": {
+      "description": "An imprinted mould blank used as the precursor to the reusable Tiara mould.",
+      "acquisition": "It is made by Crafting Soft Clay together with a Borrowed Tiara in inventory.",
+      "uses": "It is used in Crafting recipes that produce Tiara mould.",
       "status": "draft"
     },
     "needle": {

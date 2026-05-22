@@ -77,7 +77,7 @@ function loadSkillManual(projectRoot, bundle, journeyIds) {
     assert(entry.overview.length, `skill manual ${skill.skillId} is missing overview`);
     validateKnownIds(entry.featuredItemIds, knownItemIds, `skill manual ${skill.skillId}`);
     validateKnownIds(entry.featuredSkillIds, knownSkillIds, `skill manual ${skill.skillId}`);
-    validateKnownIds(entry.featuredWorldIds, knownWorldIds, `skill manual ${skill.skillId}`);
+    if (knownWorldIds.size) validateKnownIds(entry.featuredWorldIds, knownWorldIds, `skill manual ${skill.skillId}`);
     validateKnownIds(entry.featuredJourneyIds, journeyIds, `skill manual ${skill.skillId}`);
     entriesById[skill.skillId] = entry;
   });
@@ -86,6 +86,7 @@ function loadSkillManual(projectRoot, bundle, journeyIds) {
 }
 
 function loadWorldManual(projectRoot, bundle, journeyIds) {
+  if (!Array.isArray(bundle.worlds) || !bundle.worlds.length) return {};
   const absPath = getManualWorldPath(projectRoot);
   assert(fs.existsSync(absPath), `Missing world manual content at ${absPath}`);
   const data = readJson(absPath);
@@ -153,12 +154,12 @@ function loadJourneys(projectRoot, bundle) {
     assert(normalized.steps.length, `journey ${journeyId} must include steps`);
     validateKnownIds(normalized.relatedItemIds, knownItemIds, `journey ${journeyId}`);
     validateKnownIds(normalized.relatedSkillIds, knownSkillIds, `journey ${journeyId}`);
-    validateKnownIds(normalized.relatedWorldIds, knownWorldIds, `journey ${journeyId}`);
+    if (knownWorldIds.size) validateKnownIds(normalized.relatedWorldIds, knownWorldIds, `journey ${journeyId}`);
     normalized.steps.forEach((step) => {
       assert(step.body.length, `journey ${journeyId} step ${step.stepId} is missing body`);
       validateKnownIds(step.itemIds, knownItemIds, `journey ${journeyId} step ${step.stepId}`);
       validateKnownIds(step.skillIds, knownSkillIds, `journey ${journeyId} step ${step.stepId}`);
-      validateKnownIds(step.worldIds, knownWorldIds, `journey ${journeyId} step ${step.stepId}`);
+      if (knownWorldIds.size) validateKnownIds(step.worldIds, knownWorldIds, `journey ${journeyId} step ${step.stepId}`);
     });
     return normalized;
   });

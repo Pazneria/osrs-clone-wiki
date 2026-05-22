@@ -15,7 +15,6 @@ const { renderEnemyIndexPage, renderEnemyPage } = require("./render/enemies");
 const { renderItemIndexPage, renderItemPage } = require("./render/items");
 const { renderJourneyIndexPage, renderJourneyPage } = require("./render/journeys");
 const { renderSkillIndexPage, renderSkillPage } = require("./render/skills");
-const { renderWorldIndexPage, renderWorldPage } = require("./render/worlds");
 const {
   buildInlineLinkRegistry,
   buildSectionPath,
@@ -72,7 +71,6 @@ function copyBundleFiles(bundle, siteRoot) {
     manifest: "manifest.json",
     items: "items.json",
     skills: "skills.json",
-    worlds: "worlds.json",
     enemies: "enemies.json"
   }, bundle.manifest.files || {});
 
@@ -80,7 +78,6 @@ function copyBundleFiles(bundle, siteRoot) {
     { source: path.join(bundle.dataDir, "manifest.json"), target: path.join(siteRoot, "data", "manifest.json") },
     { source: path.join(bundle.dataDir, filenames.items), target: path.join(siteRoot, "data", "items.json") },
     { source: path.join(bundle.dataDir, filenames.skills), target: path.join(siteRoot, "data", "skills.json") },
-    { source: path.join(bundle.dataDir, filenames.worlds), target: path.join(siteRoot, "data", "worlds.json") },
     { source: path.join(bundle.dataDir, filenames.enemies), target: path.join(siteRoot, "data", "enemies.json") }
   ];
 
@@ -127,15 +124,19 @@ function validateRenderedOutput(siteRoot, routePaths) {
   routePaths.forEach((routePath) => {
     const outputFile = routePathToOutputFile(siteRoot, routePath);
     const html = readText(outputFile);
+    assert(!html.includes("north_road_camp"), `${routePath} still renders the retired north_road_camp world id`);
+    assert(!html.includes("North Road Camp"), `${routePath} still renders the retired North Road Camp label`);
     if (routePath === buildCodexHomePath()) {
       assert(!html.includes("manual-link-list"), "home page still renders a manual-link-list wall");
+      assert(!html.includes("guide-list--compact"), "home page still renders compact link stacks");
+      assert(!html.includes("Best paired with"), "home page still renders best-paired link blurbs");
+      assert(!html.includes("Supporting pages that reinforce those routes"), "home page still renders support-page link walls");
       return;
     }
     if (routePath === buildSectionPath("journeys")
       || routePath === buildSectionPath("items")
       || routePath === buildSectionPath("skills")
-      || routePath === buildSectionPath("enemies")
-      || routePath === buildSectionPath("world")) {
+      || routePath === buildSectionPath("enemies")) {
       return;
     }
     assert(!html.includes("manual-link-list"), `detail page ${routePath} still renders a manual-link-list wall`);
@@ -150,21 +151,8 @@ function validateRenderedOutput(siteRoot, routePaths) {
     "Boars",
     "boar_tusk item page is missing the inline Boars link"
   );
-  assertInlineLink(
-    boarTuskHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town",
-    "boar_tusk item page is missing the inline Starter Town link"
-  );
-
   const craftingHtml = readText(routePathToOutputFile(siteRoot, buildCodexEntityPath("skill", "crafting")));
   assert(!craftingHtml.includes("Journey Links"), "crafting skill page still shows the Journey Links section");
-  assertInlineLink(
-    craftingHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town",
-    "crafting skill page is missing the inline Starter Town link"
-  );
   assertInlineLink(
     craftingHtml,
     buildCodexJourneyPath("hides_of_the_frontier"),
@@ -172,52 +160,11 @@ function validateRenderedOutput(siteRoot, routePaths) {
     "crafting skill page is missing the inline Hides Of The Frontier link"
   );
 
-  const starterTownHtml = readText(routePathToOutputFile(siteRoot, buildCodexEntityPath("world", "starter_town")));
-  assert(!starterTownHtml.includes("Featured Loops"), "starter_town world page still shows the Featured Loops section");
-  assert(!starterTownHtml.includes("Journey Links"), "starter_town world page still shows the Journey Links section");
-  assertInlineLink(
-    starterTownHtml,
-    buildCodexJourneyPath("hides_of_the_frontier"),
-    "Hides Of The Frontier",
-    "starter_town world page is missing the inline Hides Of The Frontier link"
-  );
-  assertInlineLink(
-    starterTownHtml,
-    buildCodexEntityPath("enemy", "enemy_boar"),
-    "boars",
-    "starter_town world page is missing the inline boars link"
-  );
-  assertInlineLink(
-    starterTownHtml,
-    buildCodexEntityPath("enemy", "enemy_wolf"),
-    "wolves",
-    "starter_town world page is missing the inline wolves link"
-  );
-
-  const northRoadCampHtml = readText(routePathToOutputFile(siteRoot, buildCodexEntityPath("world", "north_road_camp")));
-  assertInlineLink(
-    northRoadCampHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town",
-    "north_road_camp world page is missing the inline Starter Town link"
-  );
-
   const rawChickenHtml = readText(routePathToOutputFile(siteRoot, buildCodexEntityPath("item", "raw_chicken")));
-  assertInlineLink(
-    rawChickenHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town(?:&#39;|')s",
-    "raw_chicken item page is missing the inline possessive Starter Town link"
-  );
+  assert(!rawChickenHtml.includes("Read this item alongside"), "raw_chicken item page still shows the read-along link pile");
 
   const boarEnemyHtml = readText(routePathToOutputFile(siteRoot, buildCodexEntityPath("enemy", "enemy_boar")));
   assert(!boarEnemyHtml.includes("Drop-linked items"), "enemy_boar page still shows the Drop-linked items wall");
-  assertInlineLink(
-    boarEnemyHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town",
-    "enemy_boar page is missing the inline Starter Town link"
-  );
   assertInlineLink(
     boarEnemyHtml,
     buildCodexEntityPath("item", "boar_tusk"),
@@ -227,12 +174,8 @@ function validateRenderedOutput(siteRoot, routePaths) {
 
   const frontierJourneyHtml = readText(routePathToOutputFile(siteRoot, buildCodexJourneyPath("hides_of_the_frontier")));
   assert(!frontierJourneyHtml.includes("Pages to keep open while you follow it"), "hides_of_the_frontier page still shows the old connected-pages wall");
-  assertInlineLink(
-    frontierJourneyHtml,
-    buildCodexEntityPath("world", "starter_town"),
-    "Starter Town",
-    "hides_of_the_frontier page is missing the inline Starter Town link"
-  );
+  assert(!frontierJourneyHtml.includes("This route is best read alongside"), "hides_of_the_frontier page still shows the route-context link pile");
+  assert(!frontierJourneyHtml.includes("in view while you do this step."), "hides_of_the_frontier page still shows per-step link piles");
   assertInlineLink(
     frontierJourneyHtml,
     buildCodexEntityPath("enemy", "enemy_boar"),
@@ -276,11 +219,9 @@ function run() {
     buildSectionPath("items"),
     buildSectionPath("skills"),
     buildSectionPath("enemies"),
-    buildSectionPath("world"),
     ...manualContent.journeys.journeys.map((entry) => entry.path),
     ...bundle.manifest.indexes.items.map((entry) => entry.path),
     ...bundle.manifest.indexes.skills.map((entry) => entry.path),
-    ...bundle.manifest.indexes.worlds.map((entry) => entry.path),
     ...bundle.manifest.indexes.enemies.map((entry) => entry.path)
   ];
 
@@ -289,8 +230,7 @@ function run() {
     renderJourneyIndexPage(bundle, siteEditorial, manualContent, renderAssets),
     renderItemIndexPage(bundle, siteEditorial, manualContent, renderAssets),
     renderSkillIndexPage(bundle, siteEditorial, manualContent, renderAssets),
-    renderEnemyIndexPage(bundle, siteEditorial, renderAssets),
-    renderWorldIndexPage(bundle, siteEditorial, manualContent, renderAssets)
+    renderEnemyIndexPage(bundle, siteEditorial, renderAssets)
   ];
 
   staticPages.forEach((page) => writeRoutePage(siteRoot, page));
@@ -298,7 +238,6 @@ function run() {
   bundle.items.forEach((item) => writeRoutePage(siteRoot, renderItemPage(bundle, siteEditorial, itemEditorial, manualContent, item, renderAssets)));
   bundle.skills.forEach((skill) => writeRoutePage(siteRoot, renderSkillPage(bundle, siteEditorial, manualContent, skill, renderAssets)));
   bundle.enemies.forEach((enemy) => writeRoutePage(siteRoot, renderEnemyPage(bundle, siteEditorial, enemy, renderAssets)));
-  bundle.worlds.forEach((world) => writeRoutePage(siteRoot, renderWorldPage(bundle, siteEditorial, manualContent, world, renderAssets)));
 
   validateGeneratedPages(siteRoot, routePaths);
   validateRenderedOutput(siteRoot, routePaths);

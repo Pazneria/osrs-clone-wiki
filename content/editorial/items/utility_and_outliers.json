@@ -11,7 +11,7 @@
     },
     "boar_tusk": {
       "description": "A boar tusk kept as one of the first animal-specific trophy drops in the starter combat loop.",
-      "acquisition": "It drops from Boars in the outer fields of Starter Town and North Road Camp.",
+      "acquisition": "It drops from Boars in the outer fields of Starter Town.",
       "uses": "The current export does not tie it into recipes or merchant tables, but it fits the same outer-field progression lane that feeds Tanner Rusk's tannery-side quest arc.",
       "status": "draft"
     },
@@ -29,37 +29,37 @@
     },
     "goblin_club": {
       "description": "A rough goblin club recovered as low-tier camp loot rather than player-ready equipment.",
-      "acquisition": "It drops from Goblin Grunts in Starter Town and North Road Camp.",
+      "acquisition": "It drops from Goblin Grunts in Starter Town.",
       "uses": "The current export does not place it in recipes or shop stock, so it mainly marks the jump from critter drops into roaming goblin encounters.",
       "status": "draft"
     },
     "guard_crest": {
       "description": "A guard crest taken as a recognizable patrol drop with more identity than the starter animal trophies.",
-      "acquisition": "It drops from Guards in Starter Town and North Road Camp.",
+      "acquisition": "It drops from Guards in Starter Town.",
       "uses": "The current export does not route it into crafting or merchant loops, so it mainly serves as higher-tier patrol loot and named-faction flavor.",
       "status": "draft"
     },
     "guard_spear": {
       "description": "A guard spear recovered as loot rather than exported player equipment.",
-      "acquisition": "It drops from Guards in Starter Town and North Road Camp.",
+      "acquisition": "It drops from Guards in Starter Town.",
       "uses": "No direct equipment, recipe, or merchant path is exported for it yet, so it currently reads as higher-tier guard loot with presentation value more than utility.",
       "status": "draft"
     },
     "hammer": {
       "description": "A core workshop tool used throughout smithing and metal assembly recipes.",
-      "acquisition": "Sold by Borin Ironvein through the exported smithing merchant tables in Starter Town and North Road Camp.",
+      "acquisition": "Sold by Borin Ironvein through the exported smithing merchant tables in Starter Town.",
       "uses": "Required for many smithing tasks and it also appears as a trade item in the smithing economy.",
       "status": "draft"
     },
     "knife": {
       "description": "A cutting tool used across fletching and simple crafting workflows.",
-      "acquisition": "Stocked by general stores in Starter Town and North Road Camp, with the exported default stock listing ten at a time.",
+      "acquisition": "Stocked by general stores in Starter Town, with the exported default stock listing ten at a time.",
       "uses": "Used to shape logs and related materials in fletching workflows, and it also appears in the fletching economy tables.",
       "status": "draft"
     },
     "rat_tail": {
       "description": "A rat tail kept as a disposable proof-of-kill drop from the very bottom of the combat ladder.",
-      "acquisition": "It drops from Rats in Starter Town and North Road Camp.",
+      "acquisition": "It drops from Rats in Starter Town.",
       "uses": "The current export does not attach it to recipes or merchant tables, so it mainly serves as low-value starter loot and encounter flavor.",
       "status": "draft"
     },
@@ -71,13 +71,13 @@
     },
     "tinderbox": {
       "description": "A basic firemaking tool used to ignite logs.",
-      "acquisition": "Stocked by general stores in Starter Town and North Road Camp through the exported firemaking and general-store economy data.",
+      "acquisition": "Stocked by general stores in Starter Town through the exported firemaking and general-store economy data.",
       "uses": "Used to light logs for Firemaking.",
       "status": "draft"
     },
     "wolf_fang": {
       "description": "A wolf fang kept as a more dangerous animal trophy from the far-out starter-region encounter bands.",
-      "acquisition": "It drops from Wolves in the outer reaches of Starter Town and North Road Camp.",
+      "acquisition": "It drops from Wolves in the outer reaches of Starter Town.",
       "uses": "The current export does not tie it into recipes or merchant tables, but it reads cleanly as part of the same outer-field pressure that frames Tanner Rusk's first quest and tannery progression.",
       "status": "draft"
     }

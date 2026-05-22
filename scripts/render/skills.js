@@ -131,7 +131,7 @@ function buildManualGuidanceBlocks(skill, manualEntry) {
       label: "Connected Systems",
       body: manualEntry && Array.isArray(manualEntry.connectedSystems) && manualEntry.connectedSystems.length
         ? manualEntry.connectedSystems
-        : [`Treat the linked items, worlds, and journeys on this page as the operational map around ${skill.title}.`]
+        : [`Treat the linked items and journeys on this page as the operational map around ${skill.title}.`]
     },
     {
       label: "Next Steps",
@@ -208,7 +208,6 @@ function getJourneyIdsForSkill(skillId, manualEntry, journeys) {
 function renderManualGuidanceSection(skill, manualEntry, linkRegistry) {
   const featuredItemCount = manualEntry && Array.isArray(manualEntry.featuredItemIds) ? manualEntry.featuredItemIds.length : 0;
   const featuredSkillCount = manualEntry && Array.isArray(manualEntry.featuredSkillIds) ? manualEntry.featuredSkillIds.length : 0;
-  const featuredWorldCount = manualEntry && Array.isArray(manualEntry.featuredWorldIds) ? manualEntry.featuredWorldIds.length : 0;
   const featuredJourneyCount = manualEntry && Array.isArray(manualEntry.featuredJourneyIds) ? manualEntry.featuredJourneyIds.length : 0;
 
   return renderGuideBlockSection({
@@ -217,7 +216,6 @@ function renderManualGuidanceSection(skill, manualEntry, linkRegistry) {
     badges: [
       `${featuredItemCount} featured items`,
       `${featuredSkillCount} featured skills`,
-      `${featuredWorldCount} featured worlds`,
       `${featuredJourneyCount} featured journeys`
     ],
     blocks: buildManualGuidanceBlocks(skill, manualEntry),
@@ -243,24 +241,19 @@ function renderUnlockHighlightsSection(skill, itemIndex) {
   `;
 }
 
-function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry, linkRegistry) {
+function renderSkillConnectionsSection(skill, itemIndex, skillIndex, manualEntry, linkRegistry) {
   const linkedItemIds = Array.isArray(manualEntry && manualEntry.featuredItemIds) && manualEntry.featuredItemIds.length
     ? manualEntry.featuredItemIds
     : skill.relatedItemIds;
   const linkedSkillIds = Array.isArray(manualEntry && manualEntry.featuredSkillIds) && manualEntry.featuredSkillIds.length
     ? manualEntry.featuredSkillIds
     : (skill.relatedSkillIds || []).filter((skillId) => skillId !== skill.skillId);
-  const linkedWorldIds = Array.isArray(manualEntry && manualEntry.featuredWorldIds) && manualEntry.featuredWorldIds.length
-    ? manualEntry.featuredWorldIds
-    : skill.relatedWorldIds;
 
   const itemLabels = linkedItemIds.map((itemId) => (itemIndex.get(itemId) || {}).title || itemId);
   const skillLabels = linkedSkillIds.map((relatedSkillId) => (skillIndex.get(relatedSkillId) || {}).title || relatedSkillId);
-  const worldLabels = linkedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId);
   const summaryParagraphs = [
     itemLabels.length ? `This skill is most visible through ${describeList(itemLabels)}.` : "",
-    skillLabels.length ? `It overlaps with ${describeList(skillLabels)}.` : "",
-    worldLabels.length ? `The loop is anchored in ${describeList(worldLabels)}.` : ""
+    skillLabels.length ? `It overlaps with ${describeList(skillLabels)}.` : ""
   ].filter(Boolean);
 
   return `
@@ -268,7 +261,7 @@ function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex,
       <div class="section-heading">
         <div>
           <p class="eyebrow">Connected Systems</p>
-          <h3>Items, skills, and worlds that anchor the loop</h3>
+          <h3>Items and skills that anchor the loop</h3>
         </div>
       </div>
       ${summaryParagraphs.length
@@ -276,8 +269,7 @@ function renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex,
         : `<p class="subtle">No connected systems yet.</p>`}
       ${renderMetaList([
         { label: "Related items", html: renderInlineLinkedList(itemLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) },
-        { label: "Related skills", html: renderInlineLinkedList(skillLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) },
-        { label: "Related worlds", html: renderInlineLinkedList(worldLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) }
+        { label: "Related skills", html: renderInlineLinkedList(skillLabels, { linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }) }
       ], { emptyText: "No connected systems yet." })}
     </section>
   `;
@@ -333,7 +325,6 @@ function renderSkillCard(skill, itemIndex, siteAssets) {
       </div>
       ${renderChipList([
         `${skill.relatedItemIds.length} items`,
-        `${skill.relatedWorldIds.length} worlds`,
         `${countRecipes(skill)} recipes`,
         `${countNodes(skill)} nodes`
       ], { className: "pill-list pill-list--dense" })}
@@ -599,7 +590,6 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
   );
   const itemIndex = new Map(bundle.items.map((item) => [item.itemId, item]));
   const skillIndex = new Map(bundle.skills.map((entry) => [entry.skillId, entry]));
-  const worldIndex = new Map(bundle.worlds.map((world) => [world.worldId, world]));
   const manualEntry = getManualSkillEntry(manualContent, skill.skillId);
   const journeys = getManualJourneys(manualContent);
 
@@ -620,8 +610,7 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
       ${renderStatGrid([
         { label: "Recipes", value: countRecipes(skill) },
         { label: "Nodes", value: countNodes(skill) },
-        { label: "Merchants", value: countMerchants(skill) },
-        { label: "Worlds", value: skill.relatedWorldIds.length }
+        { label: "Merchants", value: countMerchants(skill) }
       ], {
         className: "hero-stat-grid",
         itemClassName: "hero-stat-card"
@@ -632,7 +621,7 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
   const body = `
     ${renderManualGuidanceSection(skill, manualEntry, siteAssets.linkRegistry)}
     ${renderUnlockHighlightsSection(skill, itemIndex)}
-    ${renderSkillConnectionsSection(skill, itemIndex, skillIndex, worldIndex, manualEntry, siteAssets.linkRegistry)}
+    ${renderSkillConnectionsSection(skill, itemIndex, skillIndex, manualEntry, siteAssets.linkRegistry)}
     ${renderJourneySection(skill, manualEntry, journeys, siteAssets.linkRegistry)}
     <section class="section-card">
       <div class="section-heading">
@@ -645,13 +634,6 @@ function renderSkillPage(bundle, editorial, manualContentOrSkill, skillOrSiteAss
         { label: "Skill ID", value: skill.skillId },
         { label: "Primary resource", html: renderInlineLinkedText(getPrimaryResource(skill, itemIndex), { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [skill.path] }) },
         { label: "Referenced items", value: skill.relatedItemIds.length },
-        {
-          label: "Referenced worlds",
-          html: renderInlineLinkedList(
-            skill.relatedWorldIds.map((worldId) => (worldIndex.get(worldId) || {}).title || worldId),
-            { linkRegistry: siteAssets.linkRegistry, excludeHrefs: [skill.path], emptyText: "None" }
-          )
-        },
         { label: "Recipe count", value: countRecipes(skill) },
         { label: "Node families", value: countNodes(skill) }
       ])}
@@ -708,7 +690,6 @@ function renderSkillIndexPage(bundle, editorial, manualContentOrSiteAssets, mayb
         </div>
         ${renderChipList([
           `${skill.relatedItemIds.length} items`,
-          `${skill.relatedWorldIds.length} worlds`,
           `${countRecipes(skill)} recipes`,
           `${relatedJourneyCount} journeys`
         ], { className: "pill-list pill-list--dense" })}
@@ -758,7 +739,7 @@ function renderSkillIndexPage(bundle, editorial, manualContentOrSiteAssets, mayb
           },
           {
             label: "Follow The Links",
-            body: ["Use the connected systems and journey routes to understand how the skill fits into items, worlds, and progression."]
+            body: ["Use the connected systems and journey routes to understand how the skill fits into items and progression."]
           }
         ]
       })}

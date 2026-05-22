@@ -109,14 +109,6 @@ function buildEntityLinkRows(bundle, options = {}) {
       meta: "Item"
     });
   });
-  (Array.isArray(options.worldIds) ? options.worldIds : []).forEach((worldId) => {
-    const world = bundle.worlds.find((entry) => entry.worldId === worldId);
-    rows.push({
-      href: buildCodexEntityPath("world", worldId),
-      label: world ? world.title : humanizeId(worldId),
-      meta: "World"
-    });
-  });
   (Array.isArray(options.enemyIds) ? options.enemyIds : []).forEach((enemyId) => {
     const enemy = bundle.enemies.find((entry) => entry.enemyId === enemyId);
     rows.push({

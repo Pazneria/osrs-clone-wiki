@@ -16,7 +16,7 @@
       ],
       "connectedSystems": [
         "Fishing supplies the raw fish inputs, while fire-based cooking uses the same starter survival loop as Firemaking.",
-        "Starter Town and North Road Camp are the two world anchors in the export, and both appear in the cooking bundle."
+        "Starter Town is the world anchor in the export, and it appears throughout the cooking bundle."
       ],
       "nextSteps": [
         "Pair Cooking with Fishing so every catch can become food instead of just stock.",
@@ -36,8 +36,7 @@
         "firemaking"
       ],
       "featuredWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -77,7 +76,7 @@
         "mining"
       ],
       "featuredWorldIds": [
-        "starter_town"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -132,7 +131,7 @@
       ],
       "connectedSystems": [
         "Cooking consumes the fish you catch, while Starter Town merchants sell the tools and buy back the outputs.",
-        "The world data places fishing routes in Starter Town and North Road Camp, so the skill is anchored to the earliest regions."
+        "The world data places fishing routes in Starter Town, so the skill is anchored to the earliest region."
       ],
       "nextSteps": [
         "Read the raw fish and cooked fish item pages together to see the full progression.",
@@ -152,8 +151,7 @@
         "firemaking"
       ],
       "featuredWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -193,7 +191,7 @@
         "crafting"
       ],
       "featuredWorldIds": [
-        "starter_town"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -212,7 +210,7 @@
       ],
       "connectedSystems": [
         "Smithing consumes most of the ore stream, Crafting uses certain ores and gems, and Runecrafting relies on Rune essence.",
-        "Starter Town and North Road Camp both appear in the mining world links, with a gated crystal seam in the world data."
+        "Starter Town appears in the mining world links, with resource routes carrying the early ore ladder."
       ],
       "nextSteps": [
         "Compare ore items to the Smithing bar recipes to see the full pipeline.",
@@ -233,8 +231,7 @@
         "runecrafting"
       ],
       "featuredWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -253,7 +250,7 @@
       ],
       "connectedSystems": [
         "Mining supplies Rune essence, and the altar recipes consume it directly at the target object layer.",
-        "Starter Town and North Road Camp both anchor the skill in the world export, and the combo rune path is gated by the runecraftingComboUnlocked flag."
+        "Starter Town anchors the skill in the world export, and the combo rune path is gated by the runecraftingComboUnlocked flag."
       ],
       "nextSteps": [
         "Read the basic rune items first, then compare them to the combo rune outputs.",
@@ -273,8 +270,7 @@
         "crafting"
       ],
       "featuredWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -314,7 +310,7 @@
         "fletching"
       ],
       "featuredWorldIds": [
-        "starter_town"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     },
@@ -333,7 +329,7 @@
       ],
       "connectedSystems": [
         "Firemaking burns the same logs, and Fletching turns them into shafts, handles, and bow parts.",
-        "Starter Town and North Road Camp are both present in the world export, and the skill has explicit route anchors in the world data."
+        "Starter Town is present in the world export, and the skill has explicit route anchors in the world data."
       ],
       "nextSteps": [
         "Follow the log items into Firemaking to see the burn side of the loop.",
@@ -354,8 +350,7 @@
         "crafting"
       ],
       "featuredWorldIds": [
-        "starter_town",
-        "north_road_camp"
+        "main_overworld"
       ],
       "featuredJourneyIds": []
     }

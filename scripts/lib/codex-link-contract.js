@@ -78,7 +78,6 @@ function getCodexRouteTemplates(basePath = DEFAULT_CODEX_BASE_PATH) {
     home: normalizedBasePath,
     item: `${normalizedBasePath}${ENTITY_SEGMENTS.item}/:itemId`,
     skill: `${normalizedBasePath}${ENTITY_SEGMENTS.skill}/:skillId`,
-    world: `${normalizedBasePath}${ENTITY_SEGMENTS.world}/:worldId`,
     enemy: `${normalizedBasePath}${ENTITY_SEGMENTS.enemy}/:enemyId`
   };
 }
